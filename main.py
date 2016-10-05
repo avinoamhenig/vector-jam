@@ -21,7 +21,7 @@ class App(tk.Tk):
 					[0, 1],
 					[1, 0]
 				]
-				self.v1_vals = [1, 0]
+				self.v1_vals = [4, 1]
 				self.v2_vals = [r[0] for r in matrixMul(self.matrix, self.v1_vals)]
 				self.v1 = self.makeVector(self.v1_vals, "blue")
 				self.v2 = self.makeVector(self.v2_vals, "red")
