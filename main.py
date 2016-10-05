@@ -85,7 +85,9 @@ class App:
 
     def isUnitary(self):
         identity_matrix = [[1,0],[0,1]]
-        return(matrixMul(self.matrix, self.getAdjoint()) == identity_matrix)
+        product = matrixMul(self.matrix, self.getAdjoint())
+        product = [[1 if 1-x < .0001 else x for x in r] for r in product] # round to 1 if v close
+        return product == identity_matrix
 
     def onMouseDown(self, event):
         self.moveV1(event.x, event.y)
