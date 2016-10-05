@@ -7,15 +7,9 @@ UNIT_SIZE = 20
 
 class App:
     def __init__(self, master):
-        self.canvas = Canvas(master, width=WIDTH,height=HEIGHT)
-        c = self.canvas
 
         self.matrix = [[0, 1],
                        [1, 0]]
-
-
-        self.canvas.bind("<ButtonPress-1>", self.onMouseDown)
-        self.canvas.bind("<B1-Motion>", self.onMouseMove)
 
         self.v1_vals = [4, 1]
         self.v2_vals = [r[0] for r in matrixMul(self.matrix, self.v1_vals)]
@@ -30,16 +24,19 @@ class App:
         self.d = Entry(master, bd = 5, width=3)
         self.d.insert(END, 0)
 
-
-        #Matrix grid
+        #Matrix grid layout
         self.a.grid(row=1, column=0)
         self.b.grid(row=1, column=1)
         self.c.grid(row=2, column=0)
         self.d.grid(row=2, column=1)
         
         #Canvas
+        self.canvas = Canvas(master, width=WIDTH,height=HEIGHT)
+        c = self.canvas
         c.grid(row=0,column=3,rowspan=20)
-        
+        self.canvas.bind("<ButtonPress-1>", self.onMouseDown)
+        self.canvas.bind("<B1-Motion>", self.onMouseMove)
+ 
         #Buttons
         update = Button(master, text="Update", command= lambda: self.updateMatrix(self.a.get(), self.b.get(), self.c.get(), self.d.get()))
         update.grid(row=3, column=0)
@@ -48,28 +45,24 @@ class App:
 
         #Labels
         self.hermitian = Label(master, text="Hermitian")
-        self.hermitian.grid(row=5, columnspan=2)
+        self.hermitian.grid(row=5, column=0)
+        self.unitary = Label(master, text="Unitary")
+        self.unitary.grid(row=5, column = 1)
         self.blue = Label(master, text=str(self.v1_vals)+"^T", fg="blue", width=20)
         self.blue.grid(row=6, columnspan=2)
         self.red = Label(master, text=str(self.v2_vals)+"^T", fg="red", width=20)
-        self.red.grid(row=7, columnspan=2)
-        
+        self.red.grid(row=7, columnspan=2) 
 
         self.drawGrid()
         self.v1 = self.makeVector(self.v1_vals, "blue")
         self.v2 = self.makeVector(self.v2_vals, "red")
 
 
-
-
     def updateMatrix(self, a, b, c, d):
         self.matrix = [[float(a), float(b)],[float(c),float(d)]]
         self.updateV2()
-        
-        if self.isHermitian():
-            self.hermitian.grid()
-        else:
-            self.hermitian.grid_remove()
+        self.hermitian.grid() if self.isHermitian() else self.hermitian.grid_remove()
+        self.unitary.grid() if self.isUnitary() else self.unitary.grid_remove()
         
     def updateCoords(self):
         self.blue['text'] = str([round(x, 2) for x in self.v1_vals])+"^T"
@@ -84,13 +77,15 @@ class App:
         self.c.insert(0,b_value)
         self.updateMatrix(float(self.a.get()), float(c_value), float(b_value), float(self.d.get()))
 
-    def getCurrentMatrix(self):
-        return[[self.a.get(), self.b.get()],[self.c.get(), self.d.get()]]
+    def getAdjoint(self):
+        return [[float(self.a.get()), float(self.c.get())], [float(self.b.get()), float(self.d.get())]]
         
     def isHermitian(self):
-        return self.getCurrentMatrix() == [[self.a.get(), self.c.get()],[self.b.get(), self.d.get()]]
+        return self.matrix == self.getAdjoint()
 
-    def unitary(
+    def isUnitary(self):
+        identity_matrix = [[1,0],[0,1]]
+        return(matrixMul(self.matrix, self.getAdjoint()) == identity_matrix)
 
     def onMouseDown(self, event):
         self.moveV1(event.x, event.y)
