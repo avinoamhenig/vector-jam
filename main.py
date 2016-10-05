@@ -15,12 +15,11 @@ class App(tk.Tk):
 				self.drawGrid()
 
 				self.canvas.bind("<ButtonPress-1>", self.onMouseDown)
-				self.canvas.bind("<ButtonRelease-1>", self.onMouseUp)
 				self.canvas.bind("<B1-Motion>", self.onMouseMove)
 
 				self.matrix = [
 					[0, 1],
-					[-1, 0]
+					[1, 0]
 				]
 				self.v1_vals = [1, 1]
 				self.v2_vals = [r[0] for r in matrixMul(self.matrix, self.v1_vals)]
@@ -29,12 +28,11 @@ class App(tk.Tk):
 
 		def onMouseDown(self, event):
 			self.moveV1(event.x, event.y)
-
-		def onMouseUp(self, event):
-			pass
+			self.updateV2()
 
 		def onMouseMove(self, event):
 			self.moveV1(event.x, event.y)
+			self.updateV2()
 
 		def drawGrid(self):
 			color="#eee"
@@ -59,7 +57,6 @@ class App(tk.Tk):
 			b = (HEIGHT/2 - y) / UNIT_SIZE
 			self.v1_vals = [a, b]
 			self.canvas.coords(self.v1, WIDTH/2, HEIGHT/2, x, y)
-			self.updateV2()
 
 		def updateV2(self):
 			self.v2_vals = [r[0] for r in matrixMul(self.matrix, self.v1_vals)]
