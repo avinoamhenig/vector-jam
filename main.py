@@ -1,15 +1,20 @@
 from tkinter import *
 from la import *
+from math import sqrt
 
-WIDTH = 500
-HEIGHT = 400
+WIDTH = 800
+HEIGHT = 600
 UNIT_SIZE = 20
+DIAG = sqrt(WIDTH**2 + HEIGHT**2)
 
 class App:
     def __init__(self, master):
 
         self.matrix = [[0, 1],
                        [1, 0]]
+        self.eigenvals = (1, -1)
+        self.ev1_vals = normalize([1, 1])
+        self.ev2_vals = normalize([1, -1])
 
         self.v1_vals = [4, 1]
         self.v2_vals = [r[0] for r in matrixMul(self.matrix, self.v1_vals)]
@@ -29,14 +34,14 @@ class App:
         self.b.grid(row=1, column=1)
         self.c.grid(row=2, column=0)
         self.d.grid(row=2, column=1)
-        
+
         #Canvas
         self.canvas = Canvas(master, width=WIDTH,height=HEIGHT)
         c = self.canvas
         c.grid(row=0,column=3,rowspan=20)
         self.canvas.bind("<ButtonPress-1>", self.onMouseDown)
         self.canvas.bind("<B1-Motion>", self.onMouseMove)
- 
+
         #Buttons
         update = Button(master, text="Update", command= lambda: self.updateMatrix(self.a.get(), self.b.get(), self.c.get(), self.d.get()))
         update.grid(row=3, column=0)
@@ -51,9 +56,32 @@ class App:
         self.blue = Label(master, text=str(self.v1_vals)+"^T", fg="blue", width=20)
         self.blue.grid(row=6, columnspan=2)
         self.red = Label(master, text=str(self.v2_vals)+"^T", fg="red", width=20)
-        self.red.grid(row=7, columnspan=2) 
+        self.red.grid(row=7, columnspan=2)
+
+        self.ev1_label = Label(master, text=str(self.eigenvals[0]),
+          fg="green yellow", width=20)
+        self.ev1_label.grid(row=8, columnspan=2)
+        self.ev2_label = Label(master, text=str(self.eigenvals[1]),
+          fg="orange", width=20)
+        self.ev2_label.grid(row=9, columnspan=2)
 
         self.drawGrid()
+
+        x1, y1 = scalarMul(-DIAG, self.ev1_vals)
+        x2, y2 = scalarMul(DIAG, self.ev1_vals)
+        self.ev1 = self.canvas.create_line(
+            WIDTH/2 + x1*UNIT_SIZE, HEIGHT/2 - y1*UNIT_SIZE,
+            WIDTH/2 + x2*UNIT_SIZE, HEIGHT/2 - y2*UNIT_SIZE,
+            fill="green yellow", dash=[10, 5]
+        )
+        x1, y1 = scalarMul(-DIAG, self.ev2_vals)
+        x2, y2 = scalarMul(DIAG, self.ev2_vals)
+        self.ev2 = self.canvas.create_line(
+            WIDTH/2 + x1*UNIT_SIZE, HEIGHT/2 - y1*UNIT_SIZE,
+            WIDTH/2 + x2*UNIT_SIZE, HEIGHT/2 - y2*UNIT_SIZE,
+            fill="orange", dash=[10, 5]
+        )
+
         self.v1 = self.makeVector(self.v1_vals, "blue")
         self.v2 = self.makeVector(self.v2_vals, "red")
 
@@ -63,11 +91,37 @@ class App:
         self.updateV2()
         self.hermitian.grid() if self.isHermitian() else self.hermitian.grid_remove()
         self.unitary.grid() if self.isUnitary() else self.unitary.grid_remove()
-        
+
+        eigenvals, evs = eigen(float(a), float(b), float(c), float(d))
+        self.eigenvals = eigenvals
+        if (len(evs) == 0):
+          self.ev1_vals = [0,0]
+          self.ev2_vals = [0,0]
+        else:
+          self.ev1_vals = normalize(evs[0])
+          self.ev2_vals = normalize(evs[1])
+        x1, y1 = scalarMul(-DIAG, self.ev1_vals)
+        x2, y2 = scalarMul(DIAG, self.ev1_vals)
+        self.canvas.coords(self.ev1,
+            WIDTH/2 + x1*UNIT_SIZE, HEIGHT/2 - y1*UNIT_SIZE,
+            WIDTH/2 + x2*UNIT_SIZE, HEIGHT/2 - y2*UNIT_SIZE,
+        )
+
+        x1, y1 = scalarMul(-DIAG, self.ev2_vals)
+        x2, y2 = scalarMul(DIAG, self.ev2_vals)
+        self.canvas.coords(self.ev2,
+            WIDTH/2 + x1*UNIT_SIZE, HEIGHT/2 - y1*UNIT_SIZE,
+            WIDTH/2 + x2*UNIT_SIZE, HEIGHT/2 - y2*UNIT_SIZE,
+        )
+        self.ev1_label['text'] = str(
+          round(eigenvals[0].real, 4) + eigenvals[0].imag*1j)
+        self.ev2_label['text'] = str(
+          round(eigenvals[1].real, 4) + eigenvals[1].imag*1j)
+
     def updateCoords(self):
         self.blue['text'] = str([round(x, 2) for x in self.v1_vals])+"^T"
         self.red['text'] = str([round(x, 2) for x in self.v2_vals])+"^T"
-                               
+
     def adjoint(self):
         b_value = self.b.get()
         c_value = self.c.get()
@@ -79,7 +133,7 @@ class App:
 
     def getAdjoint(self):
         return [[float(self.a.get()), float(self.c.get())], [float(self.b.get()), float(self.d.get())]]
-        
+
     def isHermitian(self):
         return self.matrix == self.getAdjoint()
 
