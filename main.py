@@ -90,7 +90,7 @@ class App:
         self.v2 = self.canvas.create_line(
             0, 0, 0, 0, fill="red", arrow="last", width = 3)
 
-        self.v1_vals = Matrix([[4], [1]])
+        self.v1_vals = Matrix([[2], [1]])
         self.setMatrix( Matrix([[0, 1], [1, 0]]) )
 
     def setMatrix(self, m):
