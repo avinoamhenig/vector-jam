@@ -77,6 +77,11 @@ class App:
         self.ev2_label = Label(master, text="", fg="orange", width=20)
         self.ev2_label.grid(row=9, columnspan=2)
 
+        self.prob1_label = Label(master, text="", fg="green yellow", width=20)
+        self.prob1_label.grid(row=10, columnspan=2)
+        self.prob2_label = Label(master, text="", fg="orange", width=20)
+        self.prob2_label.grid(row=11, columnspan=2)
+
         self.drawGrid()
 
         self.ev1 = self.canvas.create_line(
@@ -93,7 +98,7 @@ class App:
         self.v2 = self.canvas.create_line(
             0, 0, 0, 0, fill="red", arrow="last", width = 3)
 
-        self.v1_vals = Matrix([[2], [1]])
+        self.v1_vals = Matrix([[4], [1]])
         self.setMatrix( Matrix([[0, 1], [1, 0]]) )
 
     def setMatrix(self, m):
@@ -133,11 +138,21 @@ class App:
             WIDTH/2 + self.v2_vals.vals()[0]*UNIT_SIZE,
             HEIGHT/2 + -self.v2_vals.vals()[1]*UNIT_SIZE
         )
+        self.projections()
         self.blue['text'] = str([round(x, 2) for x in self.v1_vals.vals()])+"^T"
         self.red['text'] = str([round(x, 2) for x in self.v2_vals.vals()])+"^T"
 
     def drawMatrix(self):
-        self.hermitian.grid() if self.matrix.isHermitian() else self.hermitian.grid_remove()
+        if self.matrix.isHermitian():
+            self.hermitian.grid()
+            self.projections()
+            self.prob1_label.grid()
+            self.prob2_label.grid()
+        else:
+            self.hermitian.grid_remove()
+            self.prob1_label.grid_remove()
+            self.prob2_label.grid_remove()
+            #also hide the projections
         if self.matrix.isUnitary():
             self.unitary.grid()
             self.stepButton.grid()
@@ -146,7 +161,6 @@ class App:
             self.unitary.grid_remove()
             self.stepButton.grid_remove()
             self.stepBackButton.grid_remove()
-
 
         x1, y1 = (-DIAG * self.ev1_vals).vals()
         x2, y2 = (DIAG * self.ev1_vals).vals()
@@ -181,6 +195,17 @@ class App:
 
     def stepBack(self):
         self.setVector(self.matrix.adjoint() * self.v1_vals)
+
+    def projections(self):
+        normalized = self.v1_vals.normalize()
+        mag1 = normalized.innerProduct(self.ev1_vals)
+        mag2 = normalized.innerProduct(self.ev2_vals)
+        prob1 = mag1.rows()[0][0]**2
+        prob2 = mag2.rows()[0][0]**2
+        
+        #will be different with imaginaries
+        self.prob1_label['text'] = "P1=",round(prob1, 4)
+        self.prob2_label['text'] = "P2=",round(prob2, 4)
 
     def adjoint(self):
         self.setMatrix(self.matrix.adjoint())

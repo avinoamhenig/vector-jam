@@ -128,3 +128,7 @@ class Matrix:
                 self.eigenvector(ev2)
             ]
         )
+
+    def innerProduct(self, b):
+       # print(self.adjoint().rows())
+        return b.adjoint() * self
