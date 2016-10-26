@@ -39,11 +39,13 @@ class App:
         submit = Button(master, text="Adjoint", command = self.adjoint)
         submit.grid(row=3, column=1)
         self.stepButton = Button(master, text="Step", command = self.step)
-        self.stepButton.grid(row=5, columnspan=2)
+        self.stepButton.grid(row=5, column=1)
+        self.stepBackButton = Button(master, text="Step Back", command = self.stepBack)
+        self.stepBackButton.grid(row=5, column=0)
 
         #Built-In Matrices
         var = StringVar(master)
-        built_in_matrices = OptionMenu(master, var,"Up/Down", "Right/Left", "In/Out", "C1", "C2", "C3")
+        built_in_matrices = OptionMenu(master, var,"Up/Down", "Right/Left", "In/Out", "C1", "C2", "C3", "Unitary")
         built_in_matrices.grid(row=16, columnspan=2)
         built_in_matrices.config(width = 10)
         def clicked():
@@ -53,7 +55,8 @@ class App:
                                "In/Out": [[0, -1j], [1j, 0]], #can't convert complex to float
                                "C1": [[1, 0], [0, -1]], #divide by 0
                                "C2": [[-.5, .866], [.866, .5]],
-                               "C3": [[-.5, -.866], [-.866, .5]]
+                               "C3": [[-.5, -.866], [-.866, .5]],
+                               "Unitary": [[.5, -.866], [.866, .5]]
                                }.get(m)
             self.setMatrix(Matrix(built_in_choice))
         self.useBuiltInMatrix = Button(master, text= "Use Built In Matrix", command=clicked)
@@ -135,8 +138,15 @@ class App:
 
     def drawMatrix(self):
         self.hermitian.grid() if self.matrix.isHermitian() else self.hermitian.grid_remove()
-        self.unitary.grid() if self.matrix.isUnitary() else self.unitary.grid_remove()
-        self.stepButton.grid() if self.matrix.isUnitary() else self.stepButton.grid_remove()
+        if self.matrix.isUnitary():
+            self.unitary.grid()
+            self.stepButton.grid()
+            self.stepBackButton.grid()
+        else:
+            self.unitary.grid_remove()
+            self.stepButton.grid_remove()
+            self.stepBackButton.grid_remove()
+
 
         x1, y1 = (-DIAG * self.ev1_vals).vals()
         x2, y2 = (DIAG * self.ev1_vals).vals()
@@ -167,8 +177,10 @@ class App:
           round(self.eigenvals[1].real, 4) + self.eigenvals[1].imag*1j)
 
     def step(self):
-        print('you will step here!')
         self.setVector(self.v2_vals)
+
+    def stepBack(self):
+        self.setVector(self.matrix.adjoint() * self.v1_vals)
 
     def adjoint(self):
         self.setMatrix(self.matrix.adjoint())
