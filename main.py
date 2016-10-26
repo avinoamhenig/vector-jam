@@ -115,14 +115,14 @@ class App:
         self.ev2 = self.canvas.create_line(
             0, 0, 0, 0, fill="orange", dash=[10, 5])
         self.eb1 = self.canvas.create_line(
-            0, 0, 0, 0, fill="magenta", arrow="last", width=2)
+            0, 0, 0, 0, fill="magenta", arrow="last", width=1)
         self.eb2 = self.canvas.create_line(
-            0, 0, 0, 0, fill="magenta", arrow="last", width=2)
+            0, 0, 0, 0, fill="magenta", arrow="last", width=1)
 
         self.v1 = self.canvas.create_line(
-            0, 0, 0, 0, fill="blue", arrow="last", width=4)
+            0, 0, 0, 0, fill="blue", arrow="last", width=3)
         self.v2 = self.canvas.create_line(
-            0, 0, 0, 0, fill="red", arrow="last", width=4)
+            0, 0, 0, 0, fill="red", arrow="last", width=3)
 
         self.projEv1 = self.canvas.create_line(
             0, 0, 0, 0, fill="cyan", arrow="last", width = 1, tag="proj")
