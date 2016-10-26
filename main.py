@@ -108,12 +108,8 @@ class App:
 
         eigenvals, evs = m.eigen()
         self.eigenvals = eigenvals
-        if (len(evs) == 0):
-          self.ev1_vals = Matrix([[0],[0]])
-          self.ev2_vals = Matrix([[0],[0]])
-        else:
-          self.ev1_vals = evs[0].normalize()
-          self.ev2_vals = evs[1].normalize()
+        self.ev1_vals = evs[0].normalize()
+        self.ev2_vals = evs[1].normalize()
 
         self.setVector(self.v1_vals)
         self.drawMatrix()

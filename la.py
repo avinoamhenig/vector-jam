@@ -64,7 +64,7 @@ class Matrix:
 
     def normalize(self):
         norm = self.norm()
-        return (1/norm * Matrix.identity(self.numRows)) * self
+        return ((0 if norm == 0 else 1/norm) * Matrix.identity(self.numRows)) * self
 
     def transpose(self):
         return Matrix(self.cols())
@@ -104,13 +104,27 @@ class Matrix:
             (-b - sqrt(term)) / (2*a)
         )
 
+    def eigenvector(self, ev):
+        a, b, c, d = self.vals()
+        if d - ev != 0:
+            return Matrix([[1], [-c/(d-ev)]])
+        elif b != 0:
+            return Matrix([[1], [(a-ev)/-b]])
+        elif a - ev != 0:
+            return Matrix([[-b/(a-ev)], [1]])
+        elif c != 0:
+            return Matrix([[(d-ev)/-c], [1]])
+        else:
+            return Matrix([[0], [0]])
+
     def eigen(self):
         ev1, ev2 = self.eigenvals()
-        m1, m2 = self.rows()[0]
         return (
             (ev1, ev2),
-            [] if isinstance(ev1, complex) else [
-                Matrix([[1], [(m1-ev1)/-m2]]),
-                Matrix([[1], [(m1-ev2)/-m2]])
+            [ Matrix([[0], [0]]),
+              Matrix([[0], [0]])
+            ] if isinstance(ev1, complex) else [
+                self.eigenvector(ev1),
+                self.eigenvector(ev2)
             ]
         )
