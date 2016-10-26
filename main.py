@@ -1,10 +1,10 @@
 from tkinter import *
-from la import *
+from la import Matrix
 from math import sqrt
 
 WIDTH = 800
 HEIGHT = 600
-UNIT_SIZE = 20
+UNIT_SIZE = 100
 DIAG = sqrt(WIDTH**2 + HEIGHT**2)
 
 class App:
@@ -13,9 +13,9 @@ class App:
         self.a = Entry(master, bd = 5, width=3)
         self.a.insert(END, 0)
         self.b = Entry(master, bd = 5, width=3)
-        self.b.insert(END, 1)
+        self.b.insert(END, 0)
         self.c = Entry(master, bd = 5, width=3)
-        self.c.insert(END, 1)
+        self.c.insert(END, 0)
         self.d = Entry(master, bd = 5, width=3)
         self.d.insert(END, 0)
 
@@ -33,7 +33,12 @@ class App:
         self.canvas.bind("<B1-Motion>", self.onMouseMove)
 
         #Buttons
-        update = Button(master, text="Update", command= lambda: self.setMatrix(self.a.get(), self.b.get(), self.c.get(), self.d.get()))
+        update = Button(master, text="Update", command=
+            lambda: self.setMatrix(Matrix([
+                [float(self.a.get()), float(self.b.get())],
+                [float(self.c.get()), float(self.d.get())]
+            ]))
+        )
         update.grid(row=3, column=0)
         submit = Button(master, text="Adjoint", command = self.adjoint)
         submit.grid(row=3, column=1)
@@ -48,101 +53,96 @@ class App:
         self.red = Label(master, text="", fg="red", width=20)
         self.red.grid(row=7, columnspan=2)
 
-        self.ev1_label = Label(master, text="",
-          fg="green yellow", width=20)
+        self.ev1_label = Label(master, text="", fg="green yellow", width=20)
         self.ev1_label.grid(row=8, columnspan=2)
-        self.ev2_label = Label(master, text="",
-          fg="orange", width=20)
+        self.ev2_label = Label(master, text="", fg="orange", width=20)
         self.ev2_label.grid(row=9, columnspan=2)
 
         self.drawGrid()
 
         self.ev1 = self.canvas.create_line(
-            0, 0, 0, 0,
-            fill="green yellow", dash=[10, 5]
-        )
+            0, 0, 0, 0, fill="green yellow", dash=[10, 5])
         self.ev2 = self.canvas.create_line(
-            0, 0, 0, 0,
-            fill="orange", dash=[10, 5]
-        )
+            0, 0, 0, 0, fill="orange", dash=[10, 5])
         self.eb1 = self.canvas.create_line(
-            0, 0, 0, 0,
-            fill="magenta", arrow="last"
-        )
+            0, 0, 0, 0, fill="magenta", arrow="last")
         self.eb2 = self.canvas.create_line(
-            0, 0, 0, 0,
-            fill="magenta", arrow="last"
-        )
+            0, 0, 0, 0, fill="magenta", arrow="last")
 
         self.v1 = self.canvas.create_line(
-            0, 0, 0, 0,
-            fill="blue", arrow="last", width = 3
-        )
+            0, 0, 0, 0, fill="blue", arrow="last", width = 3)
         self.v2 = self.canvas.create_line(
-            0, 0, 0, 0,
-            fill="red", arrow="last", width = 3
-        )
+            0, 0, 0, 0, fill="red", arrow="last", width = 3)
 
-        self.v1_vals = [4, 1]
-        self.setMatrix(0, 1,
-                       1, 0)
+        self.v1_vals = Matrix([[4], [1]])
+        self.setMatrix( Matrix([[0, 1], [1, 0]]) )
 
-    def setMatrix(self, a, b, c, d):
-        self.matrix = [[float(a), float(b)],[float(c),float(d)]]
+    def setMatrix(self, m):
+        self.matrix = m
 
-        eigenvals, evs = eigen(float(a), float(b), float(c), float(d))
+        a, b, c, d = m.vals()
+        self.a.delete(0, END)
+        self.b.delete(0, END)
+        self.c.delete(0, END)
+        self.d.delete(0, END)
+        self.a.insert(0, a)
+        self.b.insert(0, b)
+        self.c.insert(0, c)
+        self.d.insert(0, d)
+
+        eigenvals, evs = m.eigen()
         self.eigenvals = eigenvals
         if (len(evs) == 0):
-          self.ev1_vals = [0,0]
-          self.ev2_vals = [0,0]
+          self.ev1_vals = Matrix([[0],[0]])
+          self.ev2_vals = Matrix([[0],[0]])
         else:
-          self.ev1_vals = normalize(evs[0])
-          self.ev2_vals = normalize(evs[1])
+          self.ev1_vals = evs[0].normalize()
+          self.ev2_vals = evs[1].normalize()
 
-        self.setVector(self.v1_vals[0], self.v1_vals[1])
+        self.setVector(self.v1_vals)
         self.drawMatrix()
 
-    def setVector(self, x, y):
-        self.v1_vals = [float(x), float(y)]
-        self.v2_vals = [r[0] for r in matrixMul(self.matrix, self.v1_vals)]
+    def setVector(self, v):
+        self.v1_vals = v
+        self.v2_vals = self.matrix * self.v1_vals
         self.drawVectors()
 
     def drawVectors(self):
         self.canvas.coords(self.v1,
             WIDTH/2, HEIGHT/2,
-            WIDTH/2 + self.v1_vals[0]*UNIT_SIZE,
-            HEIGHT/2 + -self.v1_vals[1]*UNIT_SIZE
+            WIDTH/2 + self.v1_vals.vals()[0]*UNIT_SIZE,
+            HEIGHT/2 + -self.v1_vals.vals()[1]*UNIT_SIZE
         )
         self.canvas.coords(self.v2,
             WIDTH/2, HEIGHT/2,
-            WIDTH/2 + self.v2_vals[0]*UNIT_SIZE,
-            HEIGHT/2 + -self.v2_vals[1]*UNIT_SIZE
+            WIDTH/2 + self.v2_vals.vals()[0]*UNIT_SIZE,
+            HEIGHT/2 + -self.v2_vals.vals()[1]*UNIT_SIZE
         )
-        self.blue['text'] = str([round(x, 2) for x in self.v1_vals])+"^T"
-        self.red['text'] = str([round(x, 2) for x in self.v2_vals])+"^T"
+        self.blue['text'] = str([round(x, 2) for x in self.v1_vals.vals()])+"^T"
+        self.red['text'] = str([round(x, 2) for x in self.v2_vals.vals()])+"^T"
 
     def drawMatrix(self):
-        self.hermitian.grid() if self.isHermitian else self.hermitian.grid_remove()
-        self.unitary.grid() if self.isUnitary() else self.unitary.grid_remove()
+        self.hermitian.grid() if self.matrix.isHermitian() else self.hermitian.grid_remove()
+        self.unitary.grid() if self.matrix.isUnitary() else self.unitary.grid_remove()
 
-        x1, y1 = scalarMul(-DIAG, self.ev1_vals)
-        x2, y2 = scalarMul(DIAG, self.ev1_vals)
+        x1, y1 = (-DIAG * self.ev1_vals).vals()
+        x2, y2 = (DIAG * self.ev1_vals).vals()
         self.canvas.coords(self.ev1,
             WIDTH/2 + x1*UNIT_SIZE, HEIGHT/2 - y1*UNIT_SIZE,
             WIDTH/2 + x2*UNIT_SIZE, HEIGHT/2 - y2*UNIT_SIZE,
         )
-        x1, y1 = scalarMul(-DIAG, self.ev2_vals)
-        x2, y2 = scalarMul(DIAG, self.ev2_vals)
+        x1, y1 = (-DIAG * self.ev2_vals).vals()
+        x2, y2 = (DIAG * self.ev2_vals).vals()
         self.canvas.coords(self.ev2,
             WIDTH/2 + x1*UNIT_SIZE, HEIGHT/2 - y1*UNIT_SIZE,
             WIDTH/2 + x2*UNIT_SIZE, HEIGHT/2 - y2*UNIT_SIZE,
         )
-        x, y = self.ev1_vals
+        x, y = self.ev1_vals.vals()
         self.canvas.coords(self.eb1,
             WIDTH/2, HEIGHT/2,
             WIDTH/2 + x*UNIT_SIZE, HEIGHT/2 - y*UNIT_SIZE,
         )
-        x, y = self.ev2_vals
+        x, y = self.ev2_vals.vals()
         self.canvas.coords(self.eb2,
             WIDTH/2, HEIGHT/2,
             WIDTH/2 + x*UNIT_SIZE, HEIGHT/2 - y*UNIT_SIZE,
@@ -154,30 +154,18 @@ class App:
           round(self.eigenvals[1].real, 4) + self.eigenvals[1].imag*1j)
 
     def adjoint(self):
-        b_value = self.b.get()
-        c_value = self.c.get()
-        self.b.delete(0, END)
-        self.c.delete(0, END)
-        self.b.insert(0,c_value)
-        self.c.insert(0,b_value)
-        self.setMatrix(float(self.a.get()), float(c_value), float(b_value), float(self.d.get()))
+        self.setMatrix(self.matrix.adjoint())
 
-    def getAdjoint(self):
-        return [[float(self.a.get()), float(self.c.get())], [float(self.b.get()), float(self.d.get())]]
-
-    def isHermitian(self):
-        return self.matrix == self.getAdjoint()
-
-    def isUnitary(self):
-        identity_matrix = [[1,0],[0,1]]
-        product = matrixMul(self.matrix, self.getAdjoint())
-        product = [[1 if 1-x < .0001 else x for x in r] for r in product] # round to 1 if v close
-        return product == identity_matrix
-
+    def vectorFromCoords(self, x, y):
+        return Matrix([
+            [(x - WIDTH/2) / UNIT_SIZE],
+            [(HEIGHT/2 - y) / UNIT_SIZE]
+        ])
     def onMouseDown(self, event):
-        self.setVector((event.x - WIDTH/2) / UNIT_SIZE, (HEIGHT/2 - event.y) / UNIT_SIZE)
+        self.setVector(self.vectorFromCoords(event.x, event.y))
     def onMouseMove(self, event):
-        self.setVector((event.x - WIDTH/2) / UNIT_SIZE, (HEIGHT/2 - event.y) / UNIT_SIZE)
+        self.setVector(self.vectorFromCoords(event.x, event.y))
+
 
     def drawGrid(self):
         color="#eee"
