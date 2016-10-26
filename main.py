@@ -52,6 +52,10 @@ class App:
         self.productVectorToggle.grid(row=18, column=0, columnspan=3)
         self.showProductVector = True
 
+        self.normalizeVectorButton = Button(master, text="Normalize Vector", command=self.normalizeVector)
+        self.normalizeVectorButton.grid(row=20, columnspan=2)
+    
+
         #Built-In Matrices
         var = StringVar(master)
         built_in_matrices = OptionMenu(master, var,"Up/Down", "Right/Left", "In/Out", "C1", "C2", "C3", "Unitary")
@@ -215,13 +219,16 @@ class App:
     def stepBack(self):
         self.setVector(self.matrix.adjoint() * self.v1_vals)
 
+    def normalizeVector(self):
+        self.setVector(self.v1_vals.normalize())
+            
     def projections(self):
         normalized = self.v1_vals.normalize()
         mag1 = normalized.innerProduct(self.ev1_vals)
         mag2 = normalized.innerProduct(self.ev2_vals)
         prob1 = mag1.rows()[0][0]**2
         prob2 = mag2.rows()[0][0]**2
-
+        
         #will be different with imaginaries
         self.prob1_label['text'] = "P1=",round(prob1, 4)
         self.prob2_label['text'] = "P2=",round(prob2, 4)
