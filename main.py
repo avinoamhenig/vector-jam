@@ -46,6 +46,11 @@ class App:
         self.stepButton.grid(row=5, column=1)
         self.stepBackButton = Button(master, text="Step Back", command = self.stepBack)
         self.stepBackButton.grid(row=5, column=0)
+        self.productVectorToggle = Checkbutton(master,
+            text="Show product vector?", command=self.toggleProductVector)
+        self.productVectorToggle.select()
+        self.productVectorToggle.grid(row=18, column=0, columnspan=3)
+        self.showProductVector = True
 
         #Built-In Matrices
         var = StringVar(master)
@@ -144,6 +149,7 @@ class App:
             self.cWidth/2 + self.v1_vals.vals()[0]*self.unitSize,
             self.cHeight/2 + -self.v1_vals.vals()[1]*self.unitSize
         )
+        self.canvas.itemconfigure(self.v2, state="normal" if self.showProductVector else "hidden")
         self.canvas.coords(self.v2,
             self.cWidth/2, self.cHeight/2,
             self.cWidth/2 + self.v2_vals.vals()[0]*self.unitSize,
@@ -244,6 +250,10 @@ class App:
     def setScale(self, unitSize):
         self.unitSize = int(unitSize)
         self.redraw()
+
+    def toggleProductVector(self):
+        self.showProductVector = not self.showProductVector
+        self.drawVectors()
 
     def drawGrid(self):
         color="#eee"
