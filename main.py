@@ -66,23 +66,20 @@ class App:
 
 
         #Built-In Matrices
-        var = StringVar(master)
-        built_in_matrices = OptionMenu(master, var,"Up/Down", "Right/Left", "In/Out", "C1", "C2", "C3", "Unitary")
+        built_in_matrices = OptionMenu(master, StringVar(),
+            "Up/Down", "Right/Left", "In/Out", "C1", "C2", "C3", "Unitary",
+            command=lambda m: self.setMatrix(Matrix({
+                "Up/Down": [[1, 0], [0, -1]],#divide by 0
+                "Right/Left": [[0, 1], [1, 0]],
+                "In/Out": [[0, -1j], [1j, 0]], #can't convert complex to float
+                "C1": [[1, 0], [0, -1]], #divide by 0
+                "C2": [[-.5, .866], [.866, .5]],
+                "C3": [[-.5, -.866], [-.866, .5]],
+                "Unitary": [[.5, -.866], [.866, .5]]
+            }.get(m)))
+        )
         built_in_matrices.grid(row=16, columnspan=2)
         built_in_matrices.config(width = 10)
-        def clicked():
-            m = var.get()
-            built_in_choice = {"Up/Down": [[1, 0], [0, -1]],#divide by 0
-                               "Right/Left": [[0, 1], [1, 0]],
-                               "In/Out": [[0, -1j], [1j, 0]], #can't convert complex to float
-                               "C1": [[1, 0], [0, -1]], #divide by 0
-                               "C2": [[-.5, .866], [.866, .5]],
-                               "C3": [[-.5, -.866], [-.866, .5]],
-                               "Unitary": [[.5, -.866], [.866, .5]]
-                               }.get(m)
-            self.setMatrix(Matrix(built_in_choice))
-        self.useBuiltInMatrix = Button(master, text= "Use Built In Matrix", command=clicked)
-        self.useBuiltInMatrix.grid(row=17, columnspan=2)
 
         # scale slider
         self.scaleSlider = Scale(master, from_=10, to=300, orient=HORIZONTAL,
