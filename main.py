@@ -140,14 +140,9 @@ class App:
         self.matrix = m
 
         a, b, c, d = m.vals()
-        self.a.delete(0, END)
-        self.b.delete(0, END)
-        self.c.delete(0, END)
-        self.d.delete(0, END)
-        self.a.insert(0, a)
-        self.b.insert(0, b)
-        self.c.insert(0, c)
-        self.d.insert(0, d)
+        for box, val in [(self.a, a), (self.b, b), (self.c, c), (self.d, d)]:
+            box.delete(0, END)
+            box.insert(0, val)
 
         eigenvals, evs = m.eigen()
         self.eigenvals = eigenvals
