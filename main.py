@@ -145,6 +145,7 @@ class App:
     def setVector(self, v):
         self.v1_vals = v
         self.v2_vals = self.matrix * self.v1_vals
+        self.calcProjections()
         self.drawVectors()
 
     def drawVectors(self):
@@ -159,9 +160,12 @@ class App:
             self.cWidth/2 + self.v2_vals.vals()[0]*self.unitSize,
             self.cHeight/2 + -self.v2_vals.vals()[1]*self.unitSize
         )
-        self.projections()
+
         self.blue['text'] = str([round(x, 2) for x in self.v1_vals.vals()])+"^T"
         self.red['text'] = str([round(x, 2) for x in self.v2_vals.vals()])+"^T"
+
+        self.prob1_label['text'] = "P1=",round(self.prob1, 4)
+        self.prob2_label['text'] = "P2=",round(self.prob2, 4)
 
     def drawMatrix(self):
         if self.matrix.isHermitian():
@@ -222,18 +226,13 @@ class App:
     def normalizeVector(self):
         self.setVector(self.v1_vals.normalize())
 
-    def projections(self):
+    def calcProjections(self):
         normalized = self.v1_vals.normalize()
-        amp1 = normalized.innerProduct(self.ev1_vals)
-        amp2 = normalized.innerProduct(self.ev2_vals)
-        prob1 = amp1.rows()[0][0]**2
-        prob2 = amp2.rows()[0][0]**2
-
+        self.amp1 = normalized.innerProduct(self.ev1_vals)
+        self.amp2 = normalized.innerProduct(self.ev2_vals)
+        self.prob1 = amp1.rows()[0][0]**2
+        self.prob2 = amp2.rows()[0][0]**2
         #will be different with complex numbers
-        self.prob1_label['text'] = "P1=",round(prob1, 4)
-        self.prob2_label['text'] = "P2=",round(prob2, 4)
-
-        return (prob1, prob2)
 
     def adjoint(self):
         self.setMatrix(self.matrix.adjoint())
