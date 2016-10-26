@@ -54,7 +54,7 @@ class App:
 
         self.normalizeVectorButton = Button(master, text="Normalize Vector", command=self.normalizeVector)
         self.normalizeVectorButton.grid(row=20, columnspan=2)
-    
+
 
         #Built-In Matrices
         var = StringVar(master)
@@ -221,17 +221,19 @@ class App:
 
     def normalizeVector(self):
         self.setVector(self.v1_vals.normalize())
-            
+
     def projections(self):
         normalized = self.v1_vals.normalize()
-        mag1 = normalized.innerProduct(self.ev1_vals)
-        mag2 = normalized.innerProduct(self.ev2_vals)
-        prob1 = mag1.rows()[0][0]**2
-        prob2 = mag2.rows()[0][0]**2
-        
-        #will be different with imaginaries
+        amp1 = normalized.innerProduct(self.ev1_vals)
+        amp2 = normalized.innerProduct(self.ev2_vals)
+        prob1 = amp1.rows()[0][0]**2
+        prob2 = amp2.rows()[0][0]**2
+
+        #will be different with complex numbers
         self.prob1_label['text'] = "P1=",round(prob1, 4)
         self.prob2_label['text'] = "P2=",round(prob2, 4)
+
+        return (prob1, prob2)
 
     def adjoint(self):
         self.setMatrix(self.matrix.adjoint())
