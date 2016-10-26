@@ -2,6 +2,7 @@ from tkinter import *
 from la import Matrix
 from math import sqrt
 import random
+from PIL import Image, ImageTk
 
 root = Tk()
 root.grid_columnconfigure(3, weight=2)
@@ -13,6 +14,11 @@ class App:
         self.cHeight = 600
         self.unitSize = 100
         self.cDiag = sqrt(self.cWidth**2 + self.cHeight**2)
+
+        # Logo
+        Label(image=ImageTk.PhotoImage(Image.open("vector-jam-logo.jpg")),
+              height=100, width=220)
+            .grid(row=0, column=0, columnspan=2)
 
         #Matrix entry objects
         self.a = Entry(master, bd = 5, width=5)
