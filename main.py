@@ -1,6 +1,7 @@
 from tkinter import *
 from la import Matrix
 from math import sqrt
+import random
 
 root = Tk()
 root.grid_columnconfigure(3, weight=2)
@@ -59,6 +60,9 @@ class App:
 
         self.normalizeVectorButton = Button(master, text="Normalize Vector", command=self.normalizeVector)
         self.normalizeVectorButton.grid(row=20, columnspan=2)
+
+        self.measureButton = Button(master, text="Measure", command=self.performMeasurement)
+        self.measureButton.grid(row=21, columnspan=2)
 
 
         #Built-In Matrices
@@ -217,10 +221,12 @@ class App:
             self.hermitian.grid()
             self.prob1_label.grid()
             self.prob2_label.grid()
+            self.measureButton.grid()
         else:
             self.hermitian.grid_remove()
             self.prob1_label.grid_remove()
             self.prob2_label.grid_remove()
+            self.measureButton.grid_remove()
             #also hide the projections
         if self.matrix.isUnitary():
             self.unitary.grid()
@@ -266,6 +272,13 @@ class App:
           round(self.eigenvals[0].real, 4) + self.eigenvals[0].imag*1j)
         self.ev2_label['text'] = str(
           round(self.eigenvals[1].real, 4) + self.eigenvals[1].imag*1j)
+
+    def performMeasurement(self):
+        random_num = random.random()
+        if random_num < self.prob1:
+            self.setVector(self.ev1_vals)
+        else:
+            self.setVector(self.ev2_vals)
 
     def step(self):
         self.setVector(self.v2_vals)
