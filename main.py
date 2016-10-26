@@ -170,7 +170,6 @@ class App:
     def drawMatrix(self):
         if self.matrix.isHermitian():
             self.hermitian.grid()
-            self.projections()
             self.prob1_label.grid()
             self.prob2_label.grid()
         else:
@@ -230,8 +229,8 @@ class App:
         normalized = self.v1_vals.normalize()
         self.amp1 = normalized.innerProduct(self.ev1_vals)
         self.amp2 = normalized.innerProduct(self.ev2_vals)
-        self.prob1 = amp1.rows()[0][0]**2
-        self.prob2 = amp2.rows()[0][0]**2
+        self.prob1 = self.amp1.rows()[0][0]**2
+        self.prob2 = self.amp2.rows()[0][0]**2
         #will be different with complex numbers
 
     def adjoint(self):
