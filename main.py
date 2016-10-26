@@ -81,7 +81,14 @@ class App:
             WIDTH/2 + x2*UNIT_SIZE, HEIGHT/2 - y2*UNIT_SIZE,
             fill="orange", dash=[10, 5]
         )
-
+        x1, y1 = self.ev2_vals
+        x2, y2 = self.ev2_vals)
+        self.canvas.create_line(
+            WIDTH/2, HEIGHT/2 ,
+            WIDTH/2 + x2*UNIT_SIZE, HEIGHT/2 - y2*UNIT_SIZE,
+            fill="magenta", arrow="last"
+        )
+            
         self.v1 = self.makeVector(self.v1_vals, "blue")
         self.v2 = self.makeVector(self.v2_vals, "red")
 
@@ -166,7 +173,7 @@ class App:
         return self.canvas.create_line(
             WIDTH/2, HEIGHT/2,
             WIDTH/2 + v[0]*UNIT_SIZE, HEIGHT/2 + -v[1]*UNIT_SIZE,
-            fill=color, arrow="last"
+            fill=color, arrow="last", width = 3
         )
 
     def moveV1(self, x, y):
