@@ -4,19 +4,19 @@ from math import sqrt
 
 WIDTH = 800
 HEIGHT = 600
-UNIT_SIZE = 20
+UNIT_SIZE = 100
 DIAG = sqrt(WIDTH**2 + HEIGHT**2)
 
 class App:
     def __init__(self, master):
         #Matrix entry objects
-        self.a = Entry(master, bd = 5, width=3)
+        self.a = Entry(master, bd = 5, width=5)
         self.a.insert(END, 0)
-        self.b = Entry(master, bd = 5, width=3)
+        self.b = Entry(master, bd = 5, width=5)
         self.b.insert(END, 1)
-        self.c = Entry(master, bd = 5, width=3)
+        self.c = Entry(master, bd = 5, width=5)
         self.c.insert(END, 1)
-        self.d = Entry(master, bd = 5, width=3)
+        self.d = Entry(master, bd = 5, width=5)
         self.d.insert(END, 0)
 
         #Matrix grid layout
@@ -37,12 +37,32 @@ class App:
         update.grid(row=3, column=0)
         submit = Button(master, text="Adjoint", command = self.adjoint)
         submit.grid(row=3, column=1)
+        self.stepButton = Button(master, text="Step", command = self.step)
+        self.stepButton.grid(row=5, columnspan=2)
+
+        #Built-In Matrices
+        var = StringVar(master)
+        built_in_matrices = OptionMenu(master, var,"Up/Down", "Right/Left", "In/Out", "C1", "C2", "C3")
+        built_in_matrices.grid(row=16, columnspan=2)
+        built_in_matrices.config(width = 10)
+        def clicked():
+            m = var.get()
+            built_in_choice = {"Up/Down": (1, 0, 0, -1),#divide by 0
+                               "Right/Left": (0, 1, 1, 0),
+                               "In/Out": (0, -1j, 1j, 0), #can't convert complex to float
+                               "C1": (1, 0, 0, -1), #divide by 0
+                               "C2": (-.5, .866, .866, .5),
+                               "C3": (-.5, -.866, -.866, .5)
+                               }.get(m)
+            self.updateEntryMatrix(*built_in_choice)
+        self.useBuiltInMatrix = Button(master, text= "Use Built In Matrix", command=clicked)
+        self.useBuiltInMatrix.grid(row=17, columnspan=2)
 
         #Labels
         self.hermitian = Label(master, text="Hermitian")
-        self.hermitian.grid(row=5, column=0)
+        self.hermitian.grid(row=4, column=0)
         self.unitary = Label(master, text="Unitary")
-        self.unitary.grid(row=5, column = 1)
+        self.unitary.grid(row=4, column = 1)
         self.blue = Label(master, text="", fg="blue", width=20)
         self.blue.grid(row=6, columnspan=2)
         self.red = Label(master, text="", fg="red", width=20)
@@ -87,6 +107,21 @@ class App:
         self.setMatrix(0, 1,
                        1, 0)
 
+    def updateEntryMatrix(self, v1, v2, v3, v4):
+        self.a.delete(0, END)
+        self.b.delete(0, END)
+        self.c.delete(0, END)
+        self.d.delete(0, END)
+        self.a.insert(0, v1)
+        self.b.insert(0, v2)
+        self.c.insert(0, v3)
+        self.d.insert(0, v4)
+        self.setMatrix(v1, v2, v3, v4)
+
+    def step(self):
+        print('you will step here!')
+        self.setVector(*self.v2_vals)
+
     def setMatrix(self, a, b, c, d):
         self.matrix = [[float(a), float(b)],[float(c),float(d)]]
 
@@ -122,8 +157,9 @@ class App:
         self.red['text'] = str([round(x, 2) for x in self.v2_vals])+"^T"
 
     def drawMatrix(self):
-        self.hermitian.grid() if self.isHermitian else self.hermitian.grid_remove()
+        self.hermitian.grid() if self.isHermitian() else self.hermitian.grid_remove()
         self.unitary.grid() if self.isUnitary() else self.unitary.grid_remove()
+        self.stepButton.grid() if self.isUnitary() else self.stepButton.grid_remove()
 
         x1, y1 = scalarMul(-DIAG, self.ev1_vals)
         x2, y2 = scalarMul(DIAG, self.ev1_vals)
