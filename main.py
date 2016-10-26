@@ -51,6 +51,11 @@ class App:
         self.productVectorToggle.select()
         self.productVectorToggle.grid(row=18, column=0, columnspan=3)
         self.showProductVector = True
+        self.projToggle = Checkbutton(master,
+            text="Show inner products?", command=self.toggleProj)
+        self.projToggle.select()
+        self.projToggle.grid(row=19, column=0, columnspan=3)
+        self.showProj = True
 
         self.normalizeVectorButton = Button(master, text="Normalize Vector", command=self.normalizeVector)
         self.normalizeVectorButton.grid(row=20, columnspan=2)
@@ -109,14 +114,23 @@ class App:
         self.ev2 = self.canvas.create_line(
             0, 0, 0, 0, fill="orange", dash=[10, 5])
         self.eb1 = self.canvas.create_line(
-            0, 0, 0, 0, fill="magenta", arrow="last")
+            0, 0, 0, 0, fill="magenta", arrow="last", width=2)
         self.eb2 = self.canvas.create_line(
-            0, 0, 0, 0, fill="magenta", arrow="last")
+            0, 0, 0, 0, fill="magenta", arrow="last", width=2)
 
         self.v1 = self.canvas.create_line(
-            0, 0, 0, 0, fill="blue", arrow="last", width = 3)
+            0, 0, 0, 0, fill="blue", arrow="last", width=4)
         self.v2 = self.canvas.create_line(
-            0, 0, 0, 0, fill="red", arrow="last", width = 3)
+            0, 0, 0, 0, fill="red", arrow="last", width=4)
+
+        self.projEv1 = self.canvas.create_line(
+            0, 0, 0, 0, fill="cyan", arrow="last", width = 1, tag="proj")
+        self.projEv2 = self.canvas.create_line(
+            0, 0, 0, 0, fill="cyan", arrow="last", width = 1, tag="proj")
+        self.projEv1Dash = self.canvas.create_line(
+            0, 0, 0, 0, fill="cyan", dash=[10, 5], width = 1, tag="proj")
+        self.projEv2Dash = self.canvas.create_line(
+            0, 0, 0, 0, fill="cyan", dash=[10, 5], width = 1, tag="proj")
 
         self.v1_vals = Matrix([[4], [1]])
         self.setMatrix( Matrix([[0, 1], [1, 0]]) )
@@ -139,6 +153,11 @@ class App:
         self.ev1_vals = evs[0].normalize()
         self.ev2_vals = evs[1].normalize()
 
+        if self.matrix.isHermitian():
+            self.showProj = True
+        else:
+            self.showProj = False
+
         self.setVector(self.v1_vals)
         self.drawMatrix()
 
@@ -159,6 +178,32 @@ class App:
             self.cWidth/2, self.cHeight/2,
             self.cWidth/2 + self.v2_vals.vals()[0]*self.unitSize,
             self.cHeight/2 + -self.v2_vals.vals()[1]*self.unitSize
+        )
+
+        x2, y2 = self.v1_vals.normalize().vals()
+        x, y = (self.amp1 * self.ev1_vals).vals()
+        self.canvas.coords(self.projEv1,
+            self.cWidth/2, self.cHeight/2,
+            self.cWidth/2 + x*self.unitSize,
+            self.cHeight/2 + -y*self.unitSize
+        )
+        self.canvas.coords(self.projEv1Dash,
+            self.cWidth/2 + x*self.unitSize,
+            self.cHeight/2 + -y*self.unitSize,
+            self.cWidth/2 + x2*self.unitSize,
+            self.cHeight/2 + -y2*self.unitSize
+        )
+        x, y = (self.amp2 * self.ev2_vals).vals()
+        self.canvas.coords(self.projEv2,
+            self.cWidth/2, self.cHeight/2,
+            self.cWidth/2 + x*self.unitSize,
+            self.cHeight/2 + -y*self.unitSize
+        )
+        self.canvas.coords(self.projEv2Dash,
+            self.cWidth/2 + x*self.unitSize,
+            self.cHeight/2 + -y*self.unitSize,
+            self.cWidth/2 + x2*self.unitSize,
+            self.cHeight/2 + -y2*self.unitSize
         )
 
         self.blue['text'] = str([round(x, 2) for x in self.v1_vals.vals()])+"^T"
@@ -186,6 +231,12 @@ class App:
             self.stepButton.grid_remove()
             self.stepBackButton.grid_remove()
 
+        if self.showProj:
+            self.projToggle.select()
+            self.canvas.itemconfigure("proj", state="normal")
+        else:
+            self.canvas.itemconfigure("proj", state="hidden")
+            self.projToggle.deselect()
 
         x1, y1 = (-self.cDiag * self.ev1_vals).vals()
         x2, y2 = (self.cDiag * self.ev1_vals).vals()
@@ -229,8 +280,8 @@ class App:
         normalized = self.v1_vals.normalize()
         self.amp1 = normalized.innerProduct(self.ev1_vals)
         self.amp2 = normalized.innerProduct(self.ev2_vals)
-        self.prob1 = self.amp1.rows()[0][0]**2
-        self.prob2 = self.amp2.rows()[0][0]**2
+        self.prob1 = self.amp1**2
+        self.prob2 = self.amp2**2
         #will be different with complex numbers
 
     def adjoint(self):
@@ -261,6 +312,10 @@ class App:
     def toggleProductVector(self):
         self.showProductVector = not self.showProductVector
         self.drawVectors()
+
+    def toggleProj(self):
+        self.showProj = not self.showProj
+        self.drawMatrix()
 
     def drawGrid(self):
         color="#eee"

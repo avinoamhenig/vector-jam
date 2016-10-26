@@ -39,7 +39,7 @@ class Matrix:
                     s += row[i] * col[i]
                 new_row.append(s)
             result.append(new_row)
-        return Matrix(result)
+        return result[0][0] if self.numRows == 1 and b.numCols == 1 else Matrix(result)
 
     def scalarMul(self, s):
         return Matrix([[s*x for x in row] for row in self.rows()])
@@ -130,5 +130,4 @@ class Matrix:
         )
 
     def innerProduct(self, b):
-       # print(self.adjoint().rows())
         return b.adjoint() * self
