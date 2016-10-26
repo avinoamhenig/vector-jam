@@ -10,14 +10,10 @@ DIAG = sqrt(WIDTH**2 + HEIGHT**2)
 class App:
     def __init__(self, master):
         #Matrix entry objects
-        self.a = Entry(master, bd = 5, width=3)
-        self.a.insert(END, 0)
-        self.b = Entry(master, bd = 5, width=3)
-        self.b.insert(END, 0)
-        self.c = Entry(master, bd = 5, width=3)
-        self.c.insert(END, 0)
-        self.d = Entry(master, bd = 5, width=3)
-        self.d.insert(END, 0)
+        self.a = Entry(master, bd = 5, width=5)
+        self.b = Entry(master, bd = 5, width=5)
+        self.c = Entry(master, bd = 5, width=5)
+        self.d = Entry(master, bd = 5, width=5)
 
         #Matrix grid layout
         self.a.grid(row=1, column=0)
@@ -42,12 +38,32 @@ class App:
         update.grid(row=3, column=0)
         submit = Button(master, text="Adjoint", command = self.adjoint)
         submit.grid(row=3, column=1)
+        self.stepButton = Button(master, text="Step", command = self.step)
+        self.stepButton.grid(row=5, columnspan=2)
+
+        #Built-In Matrices
+        var = StringVar(master)
+        built_in_matrices = OptionMenu(master, var,"Up/Down", "Right/Left", "In/Out", "C1", "C2", "C3")
+        built_in_matrices.grid(row=16, columnspan=2)
+        built_in_matrices.config(width = 10)
+        def clicked():
+            m = var.get()
+            built_in_choice = {"Up/Down": [[1, 0], [0, -1]],#divide by 0
+                               "Right/Left": [[0, 1], [1, 0]],
+                               "In/Out": [[0, -1j], [1j, 0]], #can't convert complex to float
+                               "C1": [[1, 0], [0, -1]], #divide by 0
+                               "C2": [[-.5, .866], [.866, .5]],
+                               "C3": [[-.5, -.866], [-.866, .5]]
+                               }.get(m)
+            self.setMatrix(Matrix(built_in_choice))
+        self.useBuiltInMatrix = Button(master, text= "Use Built In Matrix", command=clicked)
+        self.useBuiltInMatrix.grid(row=17, columnspan=2)
 
         #Labels
         self.hermitian = Label(master, text="Hermitian")
-        self.hermitian.grid(row=5, column=0)
+        self.hermitian.grid(row=4, column=0)
         self.unitary = Label(master, text="Unitary")
-        self.unitary.grid(row=5, column = 1)
+        self.unitary.grid(row=4, column = 1)
         self.blue = Label(master, text="", fg="blue", width=20)
         self.blue.grid(row=6, columnspan=2)
         self.red = Label(master, text="", fg="red", width=20)
@@ -124,6 +140,7 @@ class App:
     def drawMatrix(self):
         self.hermitian.grid() if self.matrix.isHermitian() else self.hermitian.grid_remove()
         self.unitary.grid() if self.matrix.isUnitary() else self.unitary.grid_remove()
+        self.stepButton.grid() if self.matrix.isUnitary() else self.stepButton.grid_remove()
 
         x1, y1 = (-DIAG * self.ev1_vals).vals()
         x2, y2 = (DIAG * self.ev1_vals).vals()
@@ -152,6 +169,10 @@ class App:
           round(self.eigenvals[0].real, 4) + self.eigenvals[0].imag*1j)
         self.ev2_label['text'] = str(
           round(self.eigenvals[1].real, 4) + self.eigenvals[1].imag*1j)
+
+    def step(self):
+        print('you will step here!')
+        self.setVector(self.v2_vals)
 
     def adjoint(self):
         self.setMatrix(self.matrix.adjoint())
