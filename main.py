@@ -2,13 +2,17 @@ from tkinter import *
 from la import Matrix
 from math import sqrt
 
-WIDTH = 800
-HEIGHT = 600
-UNIT_SIZE = 100
-DIAG = sqrt(WIDTH**2 + HEIGHT**2)
+root = Tk()
+root.grid_columnconfigure(3, weight=2)
+root.grid_rowconfigure(19, weight=2)
 
 class App:
     def __init__(self, master):
+        self.cWidth = 800
+        self.cHeight = 600
+        self.unitSize = 100
+        self.cDiag = sqrt(self.cWidth**2 + self.cHeight**2)
+
         #Matrix entry objects
         self.a = Entry(master, bd = 5, width=5)
         self.b = Entry(master, bd = 5, width=5)
@@ -22,11 +26,11 @@ class App:
         self.d.grid(row=2, column=1)
 
         #Canvas
-        self.canvas = Canvas(master, width=WIDTH,height=HEIGHT)
-        c = self.canvas
-        c.grid(row=0,column=3,rowspan=20)
+        self.canvas = Canvas(master, width=self.cWidth, height=self.cHeight)
+        self.canvas.grid(row=0, column=3, rowspan=21, sticky="SNEW")
         self.canvas.bind("<ButtonPress-1>", self.onMouseDown)
         self.canvas.bind("<B1-Motion>", self.onMouseMove)
+        self.canvas.bind('<Configure>', self.canvasResize)
 
         #Buttons
         update = Button(master, text="Update", command=
@@ -61,6 +65,13 @@ class App:
             self.setMatrix(Matrix(built_in_choice))
         self.useBuiltInMatrix = Button(master, text= "Use Built In Matrix", command=clicked)
         self.useBuiltInMatrix.grid(row=17, columnspan=2)
+
+        # scale slider
+        self.scaleSlider = Scale(master, from_=10, to=300, orient=HORIZONTAL,
+            width=10, sliderlength=20, showvalue=0, length=170,
+            command = self.setScale)
+        self.scaleSlider.set(self.unitSize)
+        self.scaleSlider.grid(row=20, columnspan=2)
 
         #Labels
         self.hermitian = Label(master, text="Hermitian")
@@ -129,14 +140,14 @@ class App:
 
     def drawVectors(self):
         self.canvas.coords(self.v1,
-            WIDTH/2, HEIGHT/2,
-            WIDTH/2 + self.v1_vals.vals()[0]*UNIT_SIZE,
-            HEIGHT/2 + -self.v1_vals.vals()[1]*UNIT_SIZE
+            self.cWidth/2, self.cHeight/2,
+            self.cWidth/2 + self.v1_vals.vals()[0]*self.unitSize,
+            self.cHeight/2 + -self.v1_vals.vals()[1]*self.unitSize
         )
         self.canvas.coords(self.v2,
-            WIDTH/2, HEIGHT/2,
-            WIDTH/2 + self.v2_vals.vals()[0]*UNIT_SIZE,
-            HEIGHT/2 + -self.v2_vals.vals()[1]*UNIT_SIZE
+            self.cWidth/2, self.cHeight/2,
+            self.cWidth/2 + self.v2_vals.vals()[0]*self.unitSize,
+            self.cHeight/2 + -self.v2_vals.vals()[1]*self.unitSize
         )
         self.projections()
         self.blue['text'] = str([round(x, 2) for x in self.v1_vals.vals()])+"^T"
@@ -162,27 +173,29 @@ class App:
             self.stepButton.grid_remove()
             self.stepBackButton.grid_remove()
 
-        x1, y1 = (-DIAG * self.ev1_vals).vals()
-        x2, y2 = (DIAG * self.ev1_vals).vals()
+
+        x1, y1 = (-self.cDiag * self.ev1_vals).vals()
+        x2, y2 = (self.cDiag * self.ev1_vals).vals()
+
         self.canvas.coords(self.ev1,
-            WIDTH/2 + x1*UNIT_SIZE, HEIGHT/2 - y1*UNIT_SIZE,
-            WIDTH/2 + x2*UNIT_SIZE, HEIGHT/2 - y2*UNIT_SIZE,
+            self.cWidth/2 + x1*self.unitSize, self.cHeight/2 - y1*self.unitSize,
+            self.cWidth/2 + x2*self.unitSize, self.cHeight/2 - y2*self.unitSize,
         )
-        x1, y1 = (-DIAG * self.ev2_vals).vals()
-        x2, y2 = (DIAG * self.ev2_vals).vals()
+        x1, y1 = (-self.cDiag * self.ev2_vals).vals()
+        x2, y2 = (self.cDiag * self.ev2_vals).vals()
         self.canvas.coords(self.ev2,
-            WIDTH/2 + x1*UNIT_SIZE, HEIGHT/2 - y1*UNIT_SIZE,
-            WIDTH/2 + x2*UNIT_SIZE, HEIGHT/2 - y2*UNIT_SIZE,
+            self.cWidth/2 + x1*self.unitSize, self.cHeight/2 - y1*self.unitSize,
+            self.cWidth/2 + x2*self.unitSize, self.cHeight/2 - y2*self.unitSize,
         )
         x, y = self.ev1_vals.vals()
         self.canvas.coords(self.eb1,
-            WIDTH/2, HEIGHT/2,
-            WIDTH/2 + x*UNIT_SIZE, HEIGHT/2 - y*UNIT_SIZE,
+            self.cWidth/2, self.cHeight/2,
+            self.cWidth/2 + x*self.unitSize, self.cHeight/2 - y*self.unitSize,
         )
         x, y = self.ev2_vals.vals()
         self.canvas.coords(self.eb2,
-            WIDTH/2, HEIGHT/2,
-            WIDTH/2 + x*UNIT_SIZE, HEIGHT/2 - y*UNIT_SIZE,
+            self.cWidth/2, self.cHeight/2,
+            self.cWidth/2 + x*self.unitSize, self.cHeight/2 - y*self.unitSize,
         )
 
         self.ev1_label['text'] = str(
@@ -212,28 +225,48 @@ class App:
 
     def vectorFromCoords(self, x, y):
         return Matrix([
-            [(x - WIDTH/2) / UNIT_SIZE],
-            [(HEIGHT/2 - y) / UNIT_SIZE]
+            [(x - self.cWidth/2) / self.unitSize],
+            [(self.cHeight/2 - y) / self.unitSize]
         ])
     def onMouseDown(self, event):
         self.setVector(self.vectorFromCoords(event.x, event.y))
     def onMouseMove(self, event):
         self.setVector(self.vectorFromCoords(event.x, event.y))
 
+    def canvasResize(self, event):
+        w,h = event.width - 6, event.height - 6
+        self.cWidth = w
+        self.cHeight = h
+        self.cDiag = sqrt(w**2 + h**2)
+        self.canvas.config(width=w, height=h)
+        self.redraw()
+
+    def setScale(self, unitSize):
+        self.unitSize = int(unitSize)
+        self.redraw()
 
     def drawGrid(self):
         color="#eee"
 
-        for x in range(UNIT_SIZE, WIDTH, UNIT_SIZE):
-                self.canvas.create_line(x, 0, x, HEIGHT, fill=color)
-        for y in range(UNIT_SIZE, WIDTH, UNIT_SIZE):
-                self.canvas.create_line(0, y, WIDTH, y, fill=color)
+        xOff = (self.cWidth/2) % self.unitSize
+        yOff = (self.cHeight/2) % self.unitSize
 
-        self.canvas.create_line(WIDTH/2, 0, WIDTH/2, HEIGHT)
-        self.canvas.create_line(0, HEIGHT/2, WIDTH, HEIGHT/2)
+        for x in range(0, self.cWidth, self.unitSize):
+            self.canvas.create_line(xOff+x, 0, xOff+x, self.cHeight, fill=color, tag="gline")
+        for y in range(0, self.cWidth, self.unitSize):
+            self.canvas.create_line(0, yOff+y, self.cWidth, yOff+y, fill=color, tag="gline")
 
+        self.canvas.create_line(self.cWidth/2, 0, self.cWidth/2, self.cHeight, tag="gline")
+        self.canvas.create_line(0, self.cHeight/2, self.cWidth, self.cHeight/2, tag="gline")
 
-root = Tk()
+        self.canvas.tag_lower("gline")
+
+    def redraw(self):
+        self.canvas.delete("gline")
+        self.drawGrid()
+        self.drawMatrix()
+        self.drawVectors()
+
 all = App(root)
 root.title('vectorJAM')
 root.mainloop()
