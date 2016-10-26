@@ -4,7 +4,7 @@ from math import sqrt
 
 root = Tk()
 root.grid_columnconfigure(3, weight=2)
-root.grid_rowconfigure(19, weight=2)
+root.grid_rowconfigure(29, weight=2)
 
 class App:
     def __init__(self, master):
@@ -27,7 +27,7 @@ class App:
 
         #Canvas
         self.canvas = Canvas(master, width=self.cWidth, height=self.cHeight)
-        self.canvas.grid(row=0, column=3, rowspan=21, sticky="SNEW")
+        self.canvas.grid(row=0, column=3, rowspan=31, sticky="SNEW")
         self.canvas.bind("<ButtonPress-1>", self.onMouseDown)
         self.canvas.bind("<B1-Motion>", self.onMouseMove)
         self.canvas.bind('<Configure>', self.canvasResize)
@@ -71,7 +71,7 @@ class App:
             width=10, sliderlength=20, showvalue=0, length=170,
             command = self.setScale)
         self.scaleSlider.set(self.unitSize)
-        self.scaleSlider.grid(row=20, columnspan=2)
+        self.scaleSlider.grid(row=30, columnspan=2)
 
         #Labels
         self.hermitian = Label(master, text="Hermitian")
@@ -215,7 +215,7 @@ class App:
         mag2 = normalized.innerProduct(self.ev2_vals)
         prob1 = mag1.rows()[0][0]**2
         prob2 = mag2.rows()[0][0]**2
-        
+
         #will be different with imaginaries
         self.prob1_label['text'] = "P1=",round(prob1, 4)
         self.prob2_label['text'] = "P2=",round(prob2, 4)
