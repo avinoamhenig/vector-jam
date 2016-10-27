@@ -4,10 +4,6 @@ from math import sqrt
 import random
 from PIL import Image, ImageTk
 
-root = Tk()
-root.grid_columnconfigure(3, weight=2)
-root.grid_rowconfigure(29, weight=2)
-
 class App:
     def __init__(self, master):
         self.cWidth = 800
@@ -16,9 +12,12 @@ class App:
         self.cDiag = sqrt(self.cWidth**2 + self.cHeight**2)
 
         # Logo
-        Label(image=ImageTk.PhotoImage(Image.open("vector-jam-logo.jpg")),
-              height=100, width=220)
-            .grid(row=0, column=0, columnspan=2)
+        logoImage = Image.open("vector-jam-logo@2x.jpg")
+        logoImage = logoImage.resize((200, 70), Image.ANTIALIAS)
+        self.logoPhoto = logoPhoto = ImageTk.PhotoImage(logoImage)
+        logoCanvas = Canvas(master, width=220, height=100)
+        logoCanvas.grid(row=0, column=0, columnspan=2)
+        logoCanvas.create_image(10, 15, image=logoPhoto, anchor=NW)
 
         #Matrix entry objects
         self.a = Entry(master, bd = 5, width=5)
@@ -350,6 +349,9 @@ class App:
         self.drawMatrix()
         self.drawVectors()
 
+root = Tk()
+root.grid_columnconfigure(3, weight=2)
+root.grid_rowconfigure(29, weight=2)
 all = App(root)
 root.title('vectorJAM')
 root.mainloop()
