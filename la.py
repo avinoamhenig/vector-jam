@@ -56,6 +56,26 @@ class Matrix:
     def __ne__(self, b):
         return not self.__eq__(b)
 
+    def __repr__(self):
+      s = ""
+      for row in self.rows():
+        for x in row:
+          s += str(x) + '\t'
+        s += '\n'
+      return s[:-1]
+
+    def tensor(self, b):
+      result = []
+      rowIndex = 0
+      for row in self.rows():
+        result += [[] for _ in range(b.numRows)]
+        for x in row:
+          multiplied = (x * b).rows()
+          for i in range(b.numRows):
+            result[rowIndex + i] += multiplied[i]
+        rowIndex += b.numRows
+      return Matrix(result)
+
     def norm(self):
         s = 0
         for x in self.vals():
