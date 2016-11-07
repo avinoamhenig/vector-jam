@@ -64,6 +64,23 @@ class Matrix:
         s += '\n'
       return s[:-1]
 
+    def __add__(self, b):
+        if not isinstance(b, self.__class__):
+            raise Exception("Cannot add "
+                    + str(type(self)) + " and "
+                    + str(type(b)) + ".")
+        if b.numRows != self.numRows or b.numCols != self.numCols:
+            raise Exception("Matrix dimensions do not match for addition")
+
+        ar = self.rows()
+        br = b.rows()
+        result = []
+        for r in range(self.numRows):
+            result.append([])
+            for c in range(self.numCols):
+                result[r].append(ar[r][c] + br[r][c])
+        return Matrix(result)
+
     def tensor(self, b):
       result = []
       rowIndex = 0
