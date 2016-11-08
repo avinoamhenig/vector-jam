@@ -265,9 +265,9 @@ class App:
             self.cWidth/2 + x*self.unitSize, self.cHeight/2 - y*self.unitSize,
         )
 
-        self.ev1_label['text'] = str(
+        self.ev1_label['text'] = "λ1: " +str(
           round(self.eigenvals[0].real, 4) + self.eigenvals[0].imag*1j)
-        self.ev2_label['text'] = str(
+        self.ev2_label['text'] = "λ2: " +str(
           round(self.eigenvals[1].real, 4) + self.eigenvals[1].imag*1j)
 
     def performMeasurement(self):
