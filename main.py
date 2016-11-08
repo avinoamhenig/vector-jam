@@ -69,15 +69,21 @@ class App:
         self.measureButton = Button(master, text="Measure", command=self.performMeasurement)
         self.measureButton.grid(row=21, columnspan=2)
 
+        self.complexPlaneToggle = Checkbutton(master,
+            text="Complex Plane", command=self.complexTransform)
+        self.complexPlaneToggle.deselect()
+        self.complexPlaneToggle.grid(row=29, columnspan=3)
+        self.complexMode = False
+
 
         #Built-In Matrices
         built_in_matrices = OptionMenu(master, StringVar(),
             "Up/Down", "Right/Left", "In/Out", "C1", "C2", "C3", "Unitary",
             command=lambda m: self.setMatrix(Matrix({
-                "Up/Down": [[1, 0], [0, -1]],#divide by 0
+                "Up/Down": [[1, 0], [0, -1]],
                 "Right/Left": [[0, 1], [1, 0]],
                 "In/Out": [[0, -1j], [1j, 0]], #can't convert complex to float
-                "C1": [[1, 0], [0, -1]], #divide by 0
+                "C1": [[1, 0], [0, -1]],
                 "C2": [[-.5, .866], [.866, .5]],
                 "C3": [[-.5, -.866], [-.866, .5]],
                 "Unitary": [[.5, -.866], [.866, .5]]
@@ -210,8 +216,11 @@ class App:
         self.blue['text'] = str([round(x, 2) for x in self.v1_vals.vals()])+"^T"
         self.red['text'] = str([round(x, 2) for x in self.v2_vals.vals()])+"^T"
 
-        self.prob1_label['text'] = "P1=",round(self.prob1, 4)
-        self.prob2_label['text'] = "P2=",round(self.prob2, 4)
+        self.prob1_label['text'] = "P1 =",round(self.prob1, 4)
+        self.prob2_label['text'] = "P2 =",round(self.prob2, 4)
+
+        self.ev1_label['bg'] = "white"
+        self.ev2_label['bg'] = "white"
 
     def drawMatrix(self):
         if self.matrix.isHermitian():
@@ -265,17 +274,19 @@ class App:
             self.cWidth/2 + x*self.unitSize, self.cHeight/2 - y*self.unitSize,
         )
 
-        self.ev1_label['text'] = "λ1: " +str(
+        self.ev1_label['text'] = "λ1 = " +str(
           round(self.eigenvals[0].real, 4) + self.eigenvals[0].imag*1j)
-        self.ev2_label['text'] = "λ2: " +str(
+        self.ev2_label['text'] = "λ2 = " +str(
           round(self.eigenvals[1].real, 4) + self.eigenvals[1].imag*1j)
 
     def performMeasurement(self):
         random_num = random.random()
         if random_num < self.prob1:
             self.setVector(self.ev1_vals)
+            self.ev1_label['bg'] = "yellow"
         else:
             self.setVector(self.ev2_vals)
+            self.ev2_label['bg'] = "yellow"
 
     def step(self):
         self.setVector(self.v2_vals)
@@ -327,6 +338,10 @@ class App:
         self.showProj = not self.showProj
         self.drawMatrix()
 
+
+    def complexTransform(self):
+        self.complexMode = not self.complexMode
+    
     def drawGrid(self):
         color="#eee"
 
