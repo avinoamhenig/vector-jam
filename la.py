@@ -110,12 +110,12 @@ class Matrix:
 
   def conjugate(self, comp = False):
     if comp:
-      return [[z.real - (z.imag * 1j) for z in row] for row in self.rows()]
+      return Matrix([[z.conjugate() for z in row] for row in self.rows()])
     else:
       return self
 
-  def adjoint(self):
-    return self.transpose().conjugate()
+  def adjoint(self, comp = False):
+    return self.transpose().conjugate(comp)
 
   def isHermitian(self):
     return self == self.adjoint()
