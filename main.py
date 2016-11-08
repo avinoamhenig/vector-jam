@@ -1,6 +1,6 @@
 from tkinter import *
 from la import Matrix
-from math import sqrt
+from math import *
 import random
 from PIL import Image, ImageTk
 
@@ -41,8 +41,8 @@ class App:
         #Buttons
         update = Button(master, text="Update", command=
             lambda: self.setMatrix(Matrix([
-                [float(self.a.get()), float(self.b.get())],
-                [float(self.c.get()), float(self.d.get())]
+                [eval(self.a.get()), eval(self.b.get())],
+                [eval(self.c.get()), eval(self.d.get())]
             ]))
         )
         update.grid(row=3, column=0)
