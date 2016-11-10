@@ -1,8 +1,10 @@
 from tkinter import *
 from la import Matrix
 from math import *
+import cmath
 import random
 from PIL import Image, ImageTk
+from vector_class import Vector
 
 class App:
     def __init__(self, master):
@@ -104,10 +106,19 @@ class App:
         self.hermitian.grid(row=4, column=0)
         self.unitary = Label(master, text="Unitary")
         self.unitary.grid(row=4, column = 1)
+        #v1
         self.blue = Label(master, text="", fg="blue", width=20)
         self.blue.grid(row=6, columnspan=2)
+        #v2
         self.red = Label(master, text="", fg="red", width=20)
         self.red.grid(row=7, columnspan=2)
+        #v3
+        self.lBlue = Label(master, text="", fg="light blue", width=20)
+        self.blue.grid(row=24, columnspan=2)#
+        #v4
+        self.lRed = Label(master, text="", fg="pink", width=20)
+        self.red.grid(row=25, columnspan=2)#
+        
 
         self.ev1_label = Label(master, text="", fg="green yellow", width=20)
         self.ev1_label.grid(row=8, columnspan=2)
@@ -121,30 +132,34 @@ class App:
 
         self.drawGrid()
 
+        self.eb1 = Vector("magenta", self.canvas, self.cWidth, self.cHeight, self.unitSize, 1)
+        self.eb2 = Vector("magenta", self.canvas, self.cWidth, self.cHeight, self.unitSize, 1)
+ #       self.eb3 = Vector("magenta", self.canvas, self.cWidth, self.cHeight, self.unitSize, 1)
+ #       self.eb4 = Vector("magenta", self.canvas, self.cWidth, self.cHeight, self.unitSize, 1)
+        self.v1 = Vector("blue", self.canvas, self.cWidth, self.cHeight, self.unitSize, 3)
+        self.v2 = Vector("red", self.canvas, self.cWidth, self.cHeight, self.unitSize, 3)
+        self.v3 = Vector("light blue", self.canvas, self.cWidth, self.cHeight, self.unitSize, 3)
+        self.v4 = Vector("pink", self.canvas, self.cWidth, self.cHeight, self.unitSize, 3)
+
+        self.v1.setVals(Matrix([[4], [1]]))
+
+        self.v3.toggleVector()
+        self.v4.toggleVector()
+
         self.ev1 = self.canvas.create_line(
             0, 0, 0, 0, fill="green yellow", dash=[10, 5])
         self.ev2 = self.canvas.create_line(
             0, 0, 0, 0, fill="orange", dash=[10, 5])
-        self.eb1 = self.canvas.create_line(
-            0, 0, 0, 0, fill="magenta", arrow="last", width=1)
-        self.eb2 = self.canvas.create_line(
-            0, 0, 0, 0, fill="magenta", arrow="last", width=1)
-
-        self.v1 = self.canvas.create_line(
-            0, 0, 0, 0, fill="blue", arrow="last", width=3)
-        self.v2 = self.canvas.create_line(
-            0, 0, 0, 0, fill="red", arrow="last", width=3)
-
+        
         self.projEv1 = self.canvas.create_line(
-            0, 0, 0, 0, fill="cyan", arrow="last", width = 1, tag="proj")
+            0, 0, 0, 0, fill="cyan", arrow="last", width = 1, tag="proj") #hide if complex
         self.projEv2 = self.canvas.create_line(
-            0, 0, 0, 0, fill="cyan", arrow="last", width = 1, tag="proj")
+            0, 0, 0, 0, fill="cyan", arrow="last", width = 1, tag="proj") #hide if complex
         self.projEv1Dash = self.canvas.create_line(
-            0, 0, 0, 0, fill="cyan", dash=[10, 5], width = 1, tag="proj")
+            0, 0, 0, 0, fill="cyan", dash=[10, 5], width = 1, tag="proj") #hide if complex
         self.projEv2Dash = self.canvas.create_line(
-            0, 0, 0, 0, fill="cyan", dash=[10, 5], width = 1, tag="proj")
+            0, 0, 0, 0, fill="cyan", dash=[10, 5], width = 1, tag="proj") #hide if complex
 
-        self.v1_vals = Matrix([[4], [1]])
         self.setMatrix( Matrix([[0, 1], [1, 0]]) )
 
     def setMatrix(self, m):
@@ -155,17 +170,20 @@ class App:
             box.delete(0, END)
             box.insert(0, val)
 
-        eigenvals, evs = m.eigen()
+        eigenvals, evs = m.eigen(self.complexMode)
         self.eigenvals = eigenvals
-        self.ev1_vals = evs[0].normalize()
-        self.ev2_vals = evs[1].normalize()
 
-        if self.matrix.isHermitian():
+        self.v1.setEigenVals(evs)
+
+            
+
+        if self.matrix.isHermitian() and not self.complexMode:
             self.showProj = True
         else:
             self.showProj = False
 
-        self.setVector(self.v1_vals)
+        self.v1.setVector(self.v1.vals, self.matrix, self.v2)
+        self.drawVectors()
         self.drawMatrix()
 
     def setVector(self, v):
@@ -175,52 +193,61 @@ class App:
         self.drawVectors()
 
     def drawVectors(self):
-        self.canvas.coords(self.v1,
-            self.cWidth/2, self.cHeight/2,
-            self.cWidth/2 + self.v1_vals.vals()[0]*self.unitSize,
-            self.cHeight/2 + -self.v1_vals.vals()[1]*self.unitSize
-        )
-        self.canvas.itemconfigure(self.v2, state="normal" if self.showProductVector else "hidden")
-        self.canvas.coords(self.v2,
-            self.cWidth/2, self.cHeight/2,
-            self.cWidth/2 + self.v2_vals.vals()[0]*self.unitSize,
-            self.cHeight/2 + -self.v2_vals.vals()[1]*self.unitSize
-        )
+        if self.complexMode:
+            xV1, yV1 = self.v1.vals.vals()[0], self.v1.vals.vals()[1]
+            self.v1.drawVector(xV1, yV1)
+            xV2, yV2 = self.v2.vals.vals()[0], self.v2.vals.vals()[1]
+            self.v2.drawVector(xV2, yV2)
+            xV3, yV3 = self.v3.vals.vals()[0], self.v3.vals.vals()[1]
+            self.v3.drawVector(xV3, yV3)
+            xV4, yV4 = self.v4.vals.vals()[0], self.v4.vals.vals()[1]
+            self.v4.drawVector(xV4, yV4)
+            
+        else:
+            #draw vector and its projection
+            xV1, yV1 = self.v1.vals.vals()[0], self.v1.vals.vals()[1]
+            self.v1.drawVector(xV1, yV1)
+            
+            self.canvas.itemconfigure(self.v2, state="normal" if self.showProductVector else "hidden")
 
-        x2, y2 = self.v1_vals.normalize().vals()
-        x, y = (self.amp1 * self.ev1_vals).vals()
-        self.canvas.coords(self.projEv1,
-            self.cWidth/2, self.cHeight/2,
-            self.cWidth/2 + x*self.unitSize,
-            self.cHeight/2 + -y*self.unitSize
-        )
-        self.canvas.coords(self.projEv1Dash,
-            self.cWidth/2 + x*self.unitSize,
-            self.cHeight/2 + -y*self.unitSize,
-            self.cWidth/2 + x2*self.unitSize,
-            self.cHeight/2 + -y2*self.unitSize
-        )
-        x, y = (self.amp2 * self.ev2_vals).vals()
-        self.canvas.coords(self.projEv2,
-            self.cWidth/2, self.cHeight/2,
-            self.cWidth/2 + x*self.unitSize,
-            self.cHeight/2 + -y*self.unitSize
-        )
-        self.canvas.coords(self.projEv2Dash,
-            self.cWidth/2 + x*self.unitSize,
-            self.cHeight/2 + -y*self.unitSize,
-            self.cWidth/2 + x2*self.unitSize,
-            self.cHeight/2 + -y2*self.unitSize
-        )
+            xV2, yV2 = self.v2.vals.vals()[0], self.v2.vals.vals()[1]
+            self.v2.drawVector(xV2, yV2)
 
-        self.blue['text'] = str([round(x, 2) for x in self.v1_vals.vals()])+"^T"
-        self.red['text'] = str([round(x, 2) for x in self.v2_vals.vals()])+"^T"
+            x2, y2 = self.v1.vals.normalize(self.complexMode).vals() ##
+            
+            x, y = (self.v1.amp1 * self.v1.ev1_vals).vals()
+            self.canvas.coords(self.projEv1,
+                self.cWidth/2, self.cHeight/2,
+                self.cWidth/2 + x*self.unitSize,
+                self.cHeight/2 + -y*self.unitSize
+            )
+            
+            self.canvas.coords(self.projEv1Dash,
+                self.cWidth/2 + x*self.unitSize,
+                self.cHeight/2 + -y*self.unitSize,
+                self.cWidth/2 + x2*self.unitSize,
+                self.cHeight/2 + -y2*self.unitSize
+            )
+            
+            x, y = (self.v1.amp2 * self.v1.ev2_vals).vals()
+            self.canvas.coords(self.projEv2,
+                self.cWidth/2, self.cHeight/2,
+                self.cWidth/2 + x*self.unitSize,
+                self.cHeight/2 + -y*self.unitSize
+            )
+            
+            self.canvas.coords(self.projEv2Dash,
+                self.cWidth/2 + x*self.unitSize,
+                self.cHeight/2 + -y*self.unitSize,
+                self.cWidth/2 + x2*self.unitSize,
+                self.cHeight/2 + -y2*self.unitSize
+            )
 
-        self.prob1_label['text'] = "P1 =",round(self.prob1, 4)
-        self.prob2_label['text'] = "P2 =",round(self.prob2, 4)
+            self.prob1_label['text'] = "P1 =",round(self.v1.prob1, 4)
+            self.prob2_label['text'] = "P2 =",round(self.v1.prob2, 4)
 
-        self.ev1_label['bg'] = "white"
-        self.ev2_label['bg'] = "white"
+            self.ev1_label['bg'] = "white"
+            self.ev2_label['bg'] = "white"
 
     def drawMatrix(self):
         if self.matrix.isHermitian():
@@ -250,29 +277,24 @@ class App:
             self.canvas.itemconfigure("proj", state="hidden")
             self.projToggle.deselect()
 
-        x1, y1 = (-self.cDiag * self.ev1_vals).vals()
-        x2, y2 = (self.cDiag * self.ev1_vals).vals()
+        x1, y1 = (-self.cDiag * self.v1.ev1_vals).vals()
+        x2, y2 = (self.cDiag * self.v1.ev1_vals).vals()
 
         self.canvas.coords(self.ev1,
             self.cWidth/2 + x1*self.unitSize, self.cHeight/2 - y1*self.unitSize,
             self.cWidth/2 + x2*self.unitSize, self.cHeight/2 - y2*self.unitSize,
         )
-        x1, y1 = (-self.cDiag * self.ev2_vals).vals()
-        x2, y2 = (self.cDiag * self.ev2_vals).vals()
+        x1, y1 = (-self.cDiag * self.v1.ev2_vals).vals()
+        x2, y2 = (self.cDiag * self.v1.ev2_vals).vals()
         self.canvas.coords(self.ev2,
             self.cWidth/2 + x1*self.unitSize, self.cHeight/2 - y1*self.unitSize,
             self.cWidth/2 + x2*self.unitSize, self.cHeight/2 - y2*self.unitSize,
         )
-        x, y = self.ev1_vals.vals()
-        self.canvas.coords(self.eb1,
-            self.cWidth/2, self.cHeight/2,
-            self.cWidth/2 + x*self.unitSize, self.cHeight/2 - y*self.unitSize,
-        )
-        x, y = self.ev2_vals.vals()
-        self.canvas.coords(self.eb2,
-            self.cWidth/2, self.cHeight/2,
-            self.cWidth/2 + x*self.unitSize, self.cHeight/2 - y*self.unitSize,
-        )
+        x, y = self.v1.ev1_vals.vals()
+        self.eb1.drawVector(x, y)
+
+        x, y = self.v1.ev2_vals.vals()
+        self.eb2.drawVector(x, y)
 
         self.ev1_label['text'] = "λ1 = " +str(
           round(self.eigenvals[0].real, 4) + self.eigenvals[0].imag*1j)
@@ -281,24 +303,29 @@ class App:
 
     def performMeasurement(self):
         random_num = random.random()
-        if random_num < self.prob1:
-            self.setVector(self.ev1_vals)
+        if random_num < self.v1.prob1:
+            self.v1.setVector(self.v1.ev1_vals, self.matrix, self.v2)
+            self.drawVectors()
             self.ev1_label['bg'] = "yellow"
         else:
-            self.setVector(self.ev2_vals)
+            self.v1.setVector(self.v1.ev2_vals, self.matrix, self.v2)
+            self.drawVectors()
             self.ev2_label['bg'] = "yellow"
 
     def step(self):
-        self.setVector(self.v2_vals)
+        self.v1.setVector(self.v2.vself.matrix, self.v2)
+        self.drawVectors()
 
     def stepBack(self):
-        self.setVector(self.matrix.adjoint() * self.v1_vals)
+        self.v1.setVector(self.matrix.adjoint(self.complexMode) * self.v1.vals, self.matrix, self.v2)
+        self.drawVectors()
 
     def normalizeVector(self):
-        self.setVector(self.v1_vals.normalize())
+        self.v1.setVector(self.v1.vals.normalize(self.complexMode), self.matrix, self.v2)
+        self.drawVectors()
 
     def calcProjections(self):
-        normalized = self.v1_vals.normalize()
+        normalized = self.v1_vals.normalize(self.complexMode)
         self.amp1 = normalized.innerProduct(self.ev1_vals)
         self.amp2 = normalized.innerProduct(self.ev2_vals)
         self.prob1 = self.amp1**2
@@ -306,7 +333,7 @@ class App:
         #will be different with complex numbers
 
     def adjoint(self):
-        self.setMatrix(self.matrix.adjoint())
+        self.setMatrix(self.matrix.adjoint(self.complexMode))
 
     def vectorFromCoords(self, x, y):
         return Matrix([
@@ -314,9 +341,17 @@ class App:
             [(self.cHeight/2 - y) / self.unitSize]
         ])
     def onMouseDown(self, event):
-        self.setVector(self.vectorFromCoords(event.x, event.y))
+        self.v1.setVector(self.vectorFromCoords(event.x, event.y), self.matrix, self.v2)
+        if self.complexMode:
+            otherVals = self.adjustOtherComplexVector(self.v1)
+            self.v3.setVector(otherVals, self.matrix, self.v4)
+        self.drawVectors()
     def onMouseMove(self, event):
-        self.setVector(self.vectorFromCoords(event.x, event.y))
+        self.v1.setVector(self.vectorFromCoords(event.x, event.y), self.matrix, self.v2)
+        if self.complexMode:
+            otherVals = self.adjustOtherComplexVector(self.v1)
+            self.v3.setVector(otherVals, self.matrix, self.v4)
+        self.drawVectors()
 
     def canvasResize(self, event):
         w,h = event.width - 6, event.height - 6
@@ -341,6 +376,31 @@ class App:
 
     def complexTransform(self):
         self.complexMode = not self.complexMode
+        self.v1.toggleComplex()
+        self.v2.toggleComplex()
+        self.v3.toggleComplex()
+        self.v4.toggleComplex()
+        self.v3.toggleVector()
+        self.v4.toggleVector()
+        self.toggleProj()
+        if self.complexMode:
+            self.v1.setVector(Matrix([[.5],[.5]]), self.matrix, self.v2)
+            otherVals = self.adjustOtherComplexVector(self.v1)
+            self.v3.setVector(otherVals, self.matrix, self.v4)
+            self.drawVectors()
+
+    def adjustOtherComplexVector(self, v1):
+        vals = v1.vals.vals() #which will be the real and imaginary parts of a complex number
+        squared_vals = vals[0]**2 + vals[1]**2 #it freaks out if this gets above 1
+        res = sqrt(1 - self.clip(squared_vals))
+        newVals = Matrix([[0],[res]]) #arbitrarily choosing to make it all imaginary for now
+        return newVals       
+
+    def clip(self,num):
+        if num >= 1:
+            return .99
+        else:
+            return num
     
     def drawGrid(self):
         color="#eee"
