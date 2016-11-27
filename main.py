@@ -3,6 +3,8 @@ from la import Matrix
 from math import *
 import random
 from PIL import Image, ImageTk
+from Vector import Vector
+from EigenStuff import EigenStuff
 
 class App:
     def __init__(self, master):
@@ -37,8 +39,14 @@ class App:
         self.canvas.bind("<ButtonPress-1>", self.onMouseDown)
         self.canvas.bind("<B1-Motion>", self.onMouseMove)
         self.canvas.bind('<Configure>', self.canvasResize)
+        
+        self.canvasInfo = {"canvas":self.canvas,
+                           "width":self.cWidth,
+                           "height":self.cHeight,
+                           "diagonal":self.cDiag
+                           }
 
-        #Buttons
+        #Buttons        
         update = Button(master, text="Update", command=
             lambda: self.setMatrix(Matrix([
                 [eval(self.a.get()), eval(self.b.get())],
@@ -104,47 +112,16 @@ class App:
         self.hermitian.grid(row=4, column=0)
         self.unitary = Label(master, text="Unitary")
         self.unitary.grid(row=4, column = 1)
-        self.blue = Label(master, text="", fg="blue", width=20)
-        self.blue.grid(row=6, columnspan=2)
-        self.red = Label(master, text="", fg="red", width=20)
-        self.red.grid(row=7, columnspan=2)
-
-        self.ev1_label = Label(master, text="", fg="green yellow", width=20)
-        self.ev1_label.grid(row=8, columnspan=2)
-        self.ev2_label = Label(master, text="", fg="orange", width=20)
-        self.ev2_label.grid(row=9, columnspan=2)
-
-        self.prob1_label = Label(master, text="", fg="green yellow", width=20)
-        self.prob1_label.grid(row=10, columnspan=2)
-        self.prob2_label = Label(master, text="", fg="orange", width=20)
-        self.prob2_label.grid(row=11, columnspan=2)
 
         self.drawGrid()
 
-        self.ev1 = self.canvas.create_line(
-            0, 0, 0, 0, fill="green yellow", dash=[10, 5])
-        self.ev2 = self.canvas.create_line(
-            0, 0, 0, 0, fill="orange", dash=[10, 5])
-        self.eb1 = self.canvas.create_line(
-            0, 0, 0, 0, fill="magenta", arrow="last", width=1)
-        self.eb2 = self.canvas.create_line(
-            0, 0, 0, 0, fill="magenta", arrow="last", width=1)
+        self.ev1 = EigenStuff(self.canvasInfo, master, 8, 10, 'green yellow', 1)
+        self.ev2 = EigenStuff(self.canvasInfo, master, 9, 11, 'orange', 2)
 
-        self.v1 = self.canvas.create_line(
-            0, 0, 0, 0, fill="blue", arrow="last", width=3)
-        self.v2 = self.canvas.create_line(
-            0, 0, 0, 0, fill="red", arrow="last", width=3)
+        self.v1 = Vector(self.canvasInfo, master, 6, 'blue')
+        self.v2 = Vector(self.canvasInfo, master, 7, 'red')
 
-        self.projEv1 = self.canvas.create_line(
-            0, 0, 0, 0, fill="cyan", arrow="last", width = 1, tag="proj")
-        self.projEv2 = self.canvas.create_line(
-            0, 0, 0, 0, fill="cyan", arrow="last", width = 1, tag="proj")
-        self.projEv1Dash = self.canvas.create_line(
-            0, 0, 0, 0, fill="cyan", dash=[10, 5], width = 1, tag="proj")
-        self.projEv2Dash = self.canvas.create_line(
-            0, 0, 0, 0, fill="cyan", dash=[10, 5], width = 1, tag="proj")
-
-        self.v1_vals = Matrix([[4], [1]])
+        self.v1.setVals(Matrix([[4],[0]]))
         self.setMatrix( Matrix([[0, 1], [1, 0]]) )
 
     def setMatrix(self, m):
@@ -157,81 +134,52 @@ class App:
 
         eigenvals, evs = m.eigen()
         self.eigenvals = eigenvals
-        self.ev1_vals = evs[0].normalize()
-        self.ev2_vals = evs[1].normalize()
+        self.ev1.setVals(evs[0].normalize())
+        self.ev2.setVals(evs[1].normalize())
 
         if self.matrix.isHermitian():
             self.showProj = True
         else:
             self.showProj = False
 
-        self.setVector(self.v1_vals)
+        self.setVector(self.v1.vals)
         self.drawMatrix()
 
     def setVector(self, v):
-        self.v1_vals = v
-        self.v2_vals = self.matrix * self.v1_vals
+        self.v1.vals = v
+        self.v2.vals = self.matrix * self.v1.vals
         self.calcProjections()
         self.drawVectors()
 
     def drawVectors(self):
-        self.canvas.coords(self.v1,
-            self.cWidth/2, self.cHeight/2,
-            self.cWidth/2 + self.v1_vals.vals()[0]*self.unitSize,
-            self.cHeight/2 + -self.v1_vals.vals()[1]*self.unitSize
-        )
-        self.canvas.itemconfigure(self.v2, state="normal" if self.showProductVector else "hidden")
-        self.canvas.coords(self.v2,
-            self.cWidth/2, self.cHeight/2,
-            self.cWidth/2 + self.v2_vals.vals()[0]*self.unitSize,
-            self.cHeight/2 + -self.v2_vals.vals()[1]*self.unitSize
-        )
+        self.v1.drawVector(self.unitSize)
+        self.canvas.itemconfigure(self.v2.vector, state="normal" if self.showProductVector else "hidden")
+        self.v2.drawVector(self.unitSize)
 
-        x2, y2 = self.v1_vals.normalize().vals()
-        x, y = (self.amp1 * self.ev1_vals).vals()
-        self.canvas.coords(self.projEv1,
-            self.cWidth/2, self.cHeight/2,
-            self.cWidth/2 + x*self.unitSize,
-            self.cHeight/2 + -y*self.unitSize
-        )
-        self.canvas.coords(self.projEv1Dash,
-            self.cWidth/2 + x*self.unitSize,
-            self.cHeight/2 + -y*self.unitSize,
-            self.cWidth/2 + x2*self.unitSize,
-            self.cHeight/2 + -y2*self.unitSize
-        )
-        x, y = (self.amp2 * self.ev2_vals).vals()
-        self.canvas.coords(self.projEv2,
-            self.cWidth/2, self.cHeight/2,
-            self.cWidth/2 + x*self.unitSize,
-            self.cHeight/2 + -y*self.unitSize
-        )
-        self.canvas.coords(self.projEv2Dash,
-            self.cWidth/2 + x*self.unitSize,
-            self.cHeight/2 + -y*self.unitSize,
-            self.cWidth/2 + x2*self.unitSize,
-            self.cHeight/2 + -y2*self.unitSize
-        )
+        x2, y2 = self.v1.vals.normalize().vals()
+        self.ev1.drawProjections(x2, y2, self.amp1, self.unitSize) #some consistency issues with these appearing
+        self.ev2.drawProjections(x2, y2, self.amp2, self.unitSize)
+        
+        self.v1.setLabel()
+        self.v2.setLabel()
 
-        self.blue['text'] = str([round(x, 2) for x in self.v1_vals.vals()])+"^T"
-        self.red['text'] = str([round(x, 2) for x in self.v2_vals.vals()])+"^T"
+        self.ev1.setProbLabel(self.prob1)
+        self.ev2.setProbLabel(self.prob2)
 
-        self.prob1_label['text'] = "P1 =",round(self.prob1, 4)
-        self.prob2_label['text'] = "P2 =",round(self.prob2, 4)
+        self.ev1.setEvLabelBackground('white')
+        self.ev2.setEvLabelBackground('white')
 
-        self.ev1_label['bg'] = "white"
-        self.ev2_label['bg'] = "white"
 
     def drawMatrix(self):
         if self.matrix.isHermitian():
             self.hermitian.grid()
-            self.prob1_label.grid()
-            self.prob2_label.grid()
+            self.ev1.probView(True)
+            self.ev2.probView(True)
             self.measureButton.grid()
         else:
             self.hermitian.grid_remove()
-            self.prob1_label.grid_remove()
-            self.prob2_label.grid_remove()
+            self.ev1.probView(False)
+            self.ev2.probView(False)
             self.measureButton.grid_remove()
             #also hide the projections
         if self.matrix.isUnitary():
@@ -250,57 +198,37 @@ class App:
             self.canvas.itemconfigure("proj", state="hidden")
             self.projToggle.deselect()
 
-        x1, y1 = (-self.cDiag * self.ev1_vals).vals()
-        x2, y2 = (self.cDiag * self.ev1_vals).vals()
+        self.ev1.drawLine(self.unitSize)
+        self.ev2.drawLine(self.unitSize)
 
-        self.canvas.coords(self.ev1,
-            self.cWidth/2 + x1*self.unitSize, self.cHeight/2 - y1*self.unitSize,
-            self.cWidth/2 + x2*self.unitSize, self.cHeight/2 - y2*self.unitSize,
-        )
-        x1, y1 = (-self.cDiag * self.ev2_vals).vals()
-        x2, y2 = (self.cDiag * self.ev2_vals).vals()
-        self.canvas.coords(self.ev2,
-            self.cWidth/2 + x1*self.unitSize, self.cHeight/2 - y1*self.unitSize,
-            self.cWidth/2 + x2*self.unitSize, self.cHeight/2 - y2*self.unitSize,
-        )
-        x, y = self.ev1_vals.vals()
-        self.canvas.coords(self.eb1,
-            self.cWidth/2, self.cHeight/2,
-            self.cWidth/2 + x*self.unitSize, self.cHeight/2 - y*self.unitSize,
-        )
-        x, y = self.ev2_vals.vals()
-        self.canvas.coords(self.eb2,
-            self.cWidth/2, self.cHeight/2,
-            self.cWidth/2 + x*self.unitSize, self.cHeight/2 - y*self.unitSize,
-        )
+        self.ev1.drawEigenBasis(self.unitSize)
+        self.ev2.drawEigenBasis(self.unitSize)
 
-        self.ev1_label['text'] = "λ1 = " +str(
-          round(self.eigenvals[0].real, 4) + self.eigenvals[0].imag*1j)
-        self.ev2_label['text'] = "λ2 = " +str(
-          round(self.eigenvals[1].real, 4) + self.eigenvals[1].imag*1j)
+        self.ev1.setEvLabel(self.eigenvals[0])
+        self.ev2.setEvLabel(self.eigenvals[1])
 
     def performMeasurement(self):
         random_num = random.random()
         if random_num < self.prob1:
-            self.setVector(self.ev1_vals)
-            self.ev1_label['bg'] = "yellow"
+            self.setVector(self.ev1.vals)
+            self.ev1.setEvLabelBackground('yellow')
         else:
-            self.setVector(self.ev2_vals)
-            self.ev2_label['bg'] = "yellow"
+            self.setVector(self.ev2.vals)
+            self.ev2.setEvLabelBackground('yellow')
 
     def step(self):
-        self.setVector(self.v2_vals)
+        self.setVector(self.v2.vals)
 
     def stepBack(self):
-        self.setVector(self.matrix.adjoint() * self.v1_vals)
+        self.setVector(self.matrix.adjoint() * self.v1.vals)
 
     def normalizeVector(self):
-        self.setVector(self.v1_vals.normalize())
+        self.setVector(self.v1.vals.normalize())
 
     def calcProjections(self):
-        normalized = self.v1_vals.normalize()
-        self.amp1 = normalized.innerProduct(self.ev1_vals)
-        self.amp2 = normalized.innerProduct(self.ev2_vals)
+        normalized = self.v1.vals.normalize()
+        self.amp1 = normalized.innerProduct(self.ev1.vals)
+        self.amp2 = normalized.innerProduct(self.ev2.vals)
         self.prob1 = self.amp1**2
         self.prob2 = self.amp2**2
         #will be different with complex numbers
@@ -337,7 +265,6 @@ class App:
     def toggleProj(self):
         self.showProj = not self.showProj
         self.drawMatrix()
-
 
     def complexTransform(self):
         self.complexMode = not self.complexMode
