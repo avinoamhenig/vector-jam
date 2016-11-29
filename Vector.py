@@ -10,8 +10,9 @@ class Vector:
         self.vals = Matrix([[0],[0]])
         self.vector = self.canvas.create_line(0,0,0,0, fill=color, arrow='last', width=3)
         self.vector2 = None
-        self.label = Label(master, text="", fg=color, width=20)
-        self.label.grid(row=labelRow, columnspan=2)
+        if labelRow == None:
+            self.label = Label(master, text="", fg=color, width=20)
+            self.label.grid(row=labelRow, columnspan=2)
         self.complexMode = False
 
     def setVals(self, vals):
