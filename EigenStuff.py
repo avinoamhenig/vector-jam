@@ -71,3 +71,4 @@ class EigenStuff:
 
     def setComplexMode(self, complexMode):
         self.eb.setComplexMode(complexMode)
+        self.canvas.coords(self.ev, 0, 0, 0, 0)
