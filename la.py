@@ -117,8 +117,8 @@ class Matrix:
     def adjoint(self, comp = False):
         return self.transpose().conjugate(comp)
 
-    def isHermitian(self):
-        return self == self.adjoint()
+    def isHermitian(self, comp = False):
+        return self == self.adjoint(comp)
 
     def isUnitary(self, accuracy=.0001):
         if self.numRows != self.numCols: return False

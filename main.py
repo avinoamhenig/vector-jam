@@ -137,7 +137,7 @@ class App:
         self.ev1.setVals(evs[0].normalize(self.complexMode))
         self.ev2.setVals(evs[1].normalize(self.complexMode))
 
-        if self.matrix.isHermitian():
+        if self.matrix.isHermitian(self.complexMode):
             self.showProj = True
         else:
             self.showProj = False
@@ -182,7 +182,7 @@ class App:
 
 
     def drawMatrix(self):
-        if self.matrix.isHermitian():
+        if self.matrix.isHermitian(self.complexMode):
             self.hermitian.grid()
             self.ev1.probView(True)
             self.ev2.probView(True)
