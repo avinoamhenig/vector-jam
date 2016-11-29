@@ -1,11 +1,12 @@
 from tkinter import *
 from la import Matrix
 from math import *
+from Vector import Vector
 import random
 
 class EigenStuff:
 
-    def __init__(self, canvas, master, evRow, probRow, color, num):
+    def __init__(self, canvas, master, evRow, probRow, color, num, basisVectorColor='magenta'):
         self.canvas = canvas['canvas']
         self.cWidth = canvas['width']
         self.cHeight = canvas['height']
@@ -18,16 +19,19 @@ class EigenStuff:
         self.ev = self.canvas.create_line(0,0,0,0,fill=color, dash=[10,15])
         self.projEv = self.canvas.create_line(0,0,0,0, fill='cyan', arrow='last', width=1, tag='proj')
         self.projEvDash = self.canvas.create_line(0,0,0,0, fill='cyan', dash=[10,5], width=1, tag='proj')
-        self.eb = self.canvas.create_line(0,0,0,0, fill='magenta', arrow='last', width=1) #able to make visible/not?
+        self.eb = Vector(canvas, master, None, basisVectorColor)
         self.num = num #for labels
         self.vals = None
 
     def setEvLabel(self, eigenVal):
-        self.evLabel['text'] = "λ" + str(self.num) + " = " +str(
-          round(eigenVal.real, 4) + eigenVal.imag*1j)
+        if eigenVal.imag == 0:
+            self.evLabel['text'] = "λ" + str(self.num) + " = " + str(round(eigenVal.real, 2))
+        else:
+            self.evLabel['text'] = "λ" + str(self.num) + " = " + str(
+                round(eigenVal.real, 2)) + ' + ' + str(round(eigenVal.imag, 2)) + 'i'
 
     def setProbLabel(self, prob):
-        self.probLabel['text'] = 'P' + str(self.num) + ' = ' + str(round(prob, 4))
+        self.probLabel['text'] = 'P' + str(self.num) + ' = ' + str(round(prob, 2))
 
     def setVals(self, evs):
         self.vals = evs
@@ -38,7 +42,7 @@ class EigenStuff:
         self.canvas.coords(self.ev,
                            self.cWidth/2 + x1*unitSize, self.cHeight/2 - y1*unitSize,
                            self.cWidth/2 + x2*unitSize, self.cHeight/2 - y2*unitSize)
-        
+
     def setEvLabelBackground(self, color):
         self.evLabel['bg'] = color
 
@@ -63,9 +67,7 @@ class EigenStuff:
                            )
 
     def drawEigenBasis(self, unitSize):
-        x, y = self.vals.vals()
-        self.canvas.coords(self.eb,
-                           self.cWidth/2, self.cHeight/2,
-                           self.cWidth/2 + x*unitSize,
-                           self.cHeight/2 - y*unitSize
-                           )
+        self.eb.drawVector(unitSize)
+
+    def setComplexMode(self, complexMode):
+        self.eb.setComplexMode(complexMode)
