@@ -10,7 +10,7 @@ class Vector:
         self.vals = Matrix([[0],[0]])
         self.vector = self.canvas.create_line(0,0,0,0, fill=color, arrow='last', width=3)
         self.vector2 = None
-        if labelRow == None:
+        if labelRow != None:
             self.label = Label(master, text="", fg=color, width=20)
             self.label.grid(row=labelRow, columnspan=2)
         self.complexMode = False
@@ -19,10 +19,10 @@ class Vector:
         self.vals = vals
 
     def drawVector(self, unitSize):
-        cWidth = self.canvas['width']
-        cHeight = self.canvas['height']
+        cWidth = int(self.canvas['width'])
+        cHeight = int(self.canvas['height'])
         if self.complexMode:
-          	self.canvas.coords(self.vector,
+            self.canvas.coords(self.vector,
                                cWidth/2, cHeight/2,
                                cWidth/2 + self.vals.vals()[0].real*unitSize,
                                cHeight/2 + -self.vals.vals()[0].imag*unitSize
@@ -32,20 +32,19 @@ class Vector:
                                cWidth/2 + self.vals.vals()[1].real*unitSize,
                                cHeight/2 + -self.vals.vals()[1].imag*unitSize
                                )
-          
+
         else:
-	        self.canvas.coords(self.vector,
-    	                       cWidth/2, cHeight/2,
-        	                   cWidth/2 + self.vals.vals()[0]*unitSize,
-            	               cHeight/2 + -self.vals.vals()[1]*unitSize
-                	           )
+            self.canvas.coords(self.vector,
+                               cWidth/2, cHeight/2,
+                               cWidth/2 + self.vals.vals()[0]*unitSize,
+                               cHeight/2 + -self.vals.vals()[1]*unitSize
+                               )
 
     def setLabel(self):
-    	if self.complexMode:
+        if self.complexMode:
             c1, c2 = self.vals.vals()
-            self.label['text'] = '[' + str(round(c1.real, 2)) + ' + ' + str(round(c1.imag, 2)) + 'i, '
-                                     + str(round(c2.real, 2)) + ' + ' + str(round(c2.imag, 2)) + 'i]^T'
-		else:
+            self.label['text'] = '[' + str(round(c1.real, 2)) + ' + ' + str(round(c1.imag, 2)) + 'i, ' + str(round(c2.real, 2)) + ' + ' + str(round(c2.imag, 2)) + 'i]^T'
+        else:
             self.label['text'] = str([round(x, 2) for x in self.vals.vals()])+"^T"
 
     def setHidden(self, show):
@@ -57,7 +56,7 @@ class Vector:
         self.complexMode = complexMode
         if complexMode:
             self.vals = (1+0j) * self.vals
-			self.vector2 = self.canvas.create_line(0,0,0,0, fill=self.color, arrow='last', width=3, dash=[10,5])
+            self.vector2 = self.canvas.create_line(0,0,0,0, fill=self.color, arrow='last', width=3, dash=[10,5])
         else:
             self.vals = Matrix([[c.real for c in row] for row in self.vals.rows()])
             self.canvas.delete(self.vector2)
