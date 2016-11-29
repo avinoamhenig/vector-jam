@@ -47,7 +47,8 @@ class Vector:
         else:
             self.label['text'] = str([round(x, 2) for x in self.vals.vals()])+"^T"
 
-    def setHidden(self, show):
+    def setHidden(self, hide):
+        show = not hide
         self.canvas.itemconfigure(self.vector, state = "normal" if show else "hidden")
         if self.complexMode:
             self.canvas.itemconfigure(self.vector2, state = "normal" if show else "hidden")
