@@ -17,7 +17,7 @@ class EigenStuff:
         self.ev = self.canvas.create_line(0,0,0,0,fill=color, dash=[10,15])
         self.projEv = self.canvas.create_line(0,0,0,0, fill='cyan', arrow='last', width=1, tag='proj')
         self.projEvDash = self.canvas.create_line(0,0,0,0, fill='cyan', dash=[10,5], width=1, tag='proj')
-        self.eb = Vector(canvas, master, None, basisVectorColor)
+        self.eb = Vector(canvas, master, None, basisVectorColor, 1)
         self.num = num #for labels
         self.vals = None
 
@@ -33,6 +33,7 @@ class EigenStuff:
 
     def setVals(self, evs):
         self.vals = evs
+        self.eb.setVals(evs)
 
     def drawLine(self, unitSize):
         cWidth = int(self.canvas['width'])

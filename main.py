@@ -115,11 +115,11 @@ class App:
 
         self.drawGrid()
 
-        self.ev1 = EigenStuff(self.canvasInfo, master, 8, 10, 'green yellow', 1)
-        self.ev2 = EigenStuff(self.canvasInfo, master, 9, 11, 'orange', 2)
+        self.ev1 = EigenStuff(self.canvasInfo, master, 8, 10, 'green yellow', 1, 'magenta')
+        self.ev2 = EigenStuff(self.canvasInfo, master, 9, 11, 'orange', 2, 'purple4')
 
-        self.v1 = Vector(self.canvasInfo, master, 6, 'blue')
-        self.v2 = Vector(self.canvasInfo, master, 7, 'red')
+        self.v1 = Vector(self.canvasInfo, master, 6, 'blue', 3)
+        self.v2 = Vector(self.canvasInfo, master, 7, 'red', 1)
 
         self.v1.setVals(Matrix([[2],[0]]))
         self.setMatrix( Matrix([[0, 1], [1, 0]]) )
