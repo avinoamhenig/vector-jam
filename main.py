@@ -132,10 +132,10 @@ class App:
             box.delete(0, END)
             box.insert(0, val)
 
-        eigenvals, evs = m.eigen()
+        eigenvals, evs = m.eigen(self.complexMode)
         self.eigenvals = eigenvals
-        self.ev1.setVals(evs[0].normalize())
-        self.ev2.setVals(evs[1].normalize())
+        self.ev1.setVals(evs[0].normalize(self.complexMode))
+        self.ev2.setVals(evs[1].normalize(self.complexMode))
 
         if self.matrix.isHermitian():
             self.showProj = True
@@ -156,7 +156,7 @@ class App:
         self.canvas.itemconfigure(self.v2.vector, state="normal" if self.showProductVector else "hidden")
         self.v2.drawVector(self.unitSize)
 
-        x2, y2 = self.v1.vals.normalize().vals()
+        x2, y2 = self.v1.vals.normalize(self.complexMode).vals()
         self.ev1.drawProjections(x2, y2, self.amp1, self.unitSize) #some consistency issues with these appearing
         self.ev2.drawProjections(x2, y2, self.amp2, self.unitSize)
         
@@ -220,13 +220,13 @@ class App:
         self.setVector(self.v2.vals)
 
     def stepBack(self):
-        self.setVector(self.matrix.adjoint() * self.v1.vals)
+        self.setVector(self.matrix.adjoint(self.complexMode) * self.v1.vals)
 
     def normalizeVector(self):
-        self.setVector(self.v1.vals.normalize())
+        self.setVector(self.v1.vals.normalize(self.complexMode))
 
     def calcProjections(self):
-        normalized = self.v1.vals.normalize()
+        normalized = self.v1.vals.normalize(self.complexMode)
         self.amp1 = normalized.innerProduct(self.ev1.vals)
         self.amp2 = normalized.innerProduct(self.ev2.vals)
         self.prob1 = self.amp1**2
@@ -234,7 +234,7 @@ class App:
         #will be different with complex numbers
 
     def adjoint(self):
-        self.setMatrix(self.matrix.adjoint())
+        self.setMatrix(self.matrix.adjoint(self.complexMode))
 
     def vectorFromCoords(self, x, y):
         return Matrix([
