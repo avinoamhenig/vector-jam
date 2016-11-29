@@ -27,7 +27,7 @@ class EigenStuff:
           round(eigenVal.real, 4) + eigenVal.imag*1j)
 
     def setProbLabel(self, prob):
-        self.probLabel['text'] = 'P' + str(self.num) + ' =' , round(prob, 4)
+        self.probLabel['text'] = 'P' + str(self.num) + ' = ' + str(round(prob, 4))
 
     def setVals(self, evs):
         self.vals = evs

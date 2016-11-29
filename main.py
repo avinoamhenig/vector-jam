@@ -121,7 +121,7 @@ class App:
         self.v1 = Vector(self.canvasInfo, master, 6, 'blue')
         self.v2 = Vector(self.canvasInfo, master, 7, 'red')
 
-        self.v1.setVals(Matrix([[4],[0]]))
+        self.v1.setVals(Matrix([[2],[0]]))
         self.setMatrix( Matrix([[0, 1], [1, 0]]) )
 
     def setMatrix(self, m):
