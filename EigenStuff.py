@@ -8,8 +8,6 @@ class EigenStuff:
 
     def __init__(self, canvas, master, evRow, probRow, color, num, basisVectorColor='magenta'):
         self.canvas = canvas['canvas']
-        self.cWidth = canvas['width']
-        self.cHeight = canvas['height']
         self.cDiag = canvas['diagonal']
         self.color = color
         self.evLabel = Label(master, text='', fg=color, width=20)
@@ -37,11 +35,13 @@ class EigenStuff:
         self.vals = evs
 
     def drawLine(self, unitSize):
+        cWidth = int(self.canvas['width'])
+        cHeight = int(self.canvas['height'])
         x1, y1 = (-self.cDiag * self.vals).vals()
         x2, y2 = (self.cDiag * self.vals).vals()
         self.canvas.coords(self.ev,
-                           self.cWidth/2 + x1*unitSize, self.cHeight/2 - y1*unitSize,
-                           self.cWidth/2 + x2*unitSize, self.cHeight/2 - y2*unitSize)
+                           cWidth/2 + x1*unitSize, cHeight/2 - y1*unitSize,
+                           cWidth/2 + x2*unitSize, cHeight/2 - y2*unitSize)
 
     def setEvLabelBackground(self, color):
         self.evLabel['bg'] = color
@@ -53,17 +53,19 @@ class EigenStuff:
             self.probLabel.grid_remove()
 
     def drawProjections(self, x2, y2, amp, unitSize):
+        cWidth = int(self.canvas['width'])
+        cHeight = int(self.canvas['height'])
         x, y = (amp * self.vals).vals()
         self.canvas.coords(self.projEv,
-                           self.cWidth/2, self.cHeight/2,
-                           self.cWidth/2 + x*unitSize,
-                           self.cHeight/2 + -y*unitSize
+                           cWidth/2, cHeight/2,
+                           cWidth/2 + x*unitSize,
+                           cHeight/2 + -y*unitSize
                            )
         self.canvas.coords(self.projEvDash,
-                           self.cWidth/2+x*unitSize,
-                           self.cHeight/2 + -y*unitSize,
-                           self.cWidth/2 + x2*unitSize,
-                           self.cHeight/2 + -y2*unitSize
+                           cWidth/2+x*unitSize,
+                           cHeight/2 + -y*unitSize,
+                           cWidth/2 + x2*unitSize,
+                           cHeight/2 + -y2*unitSize
                            )
 
     def drawEigenBasis(self, unitSize):
