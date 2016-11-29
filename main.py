@@ -39,14 +39,14 @@ class App:
         self.canvas.bind("<ButtonPress-1>", self.onMouseDown)
         self.canvas.bind("<B1-Motion>", self.onMouseMove)
         self.canvas.bind('<Configure>', self.canvasResize)
-        
+
         self.canvasInfo = {"canvas":self.canvas,
                            "width":self.cWidth,
                            "height":self.cHeight,
                            "diagonal":self.cDiag
                            }
 
-        #Buttons        
+        #Buttons
         update = Button(master, text="Update", command=
             lambda: self.setMatrix(Matrix([
                 [eval(self.a.get()), eval(self.b.get())],
@@ -146,20 +146,31 @@ class App:
         self.drawMatrix()
 
     def setVector(self, v):
-        self.v1.vals = v
-        self.v2.vals = self.matrix * self.v1.vals
+        if self.complexMode:
+            x, y = v.vals()
+            c1, c2 = self.v1.vals.vals()
+            d1 = sqrt(abs(x - c1.real)**2 + abs(y - c1.imag)**2)
+            d2 = sqrt(abs(x - c2.real)**2 + abs(y - c2.imag)**2)
+            if d1 < d2:
+              self.v1.setVals(Matrix([[x+y*1j], [c2]]))
+            else:
+              self.v1.setVals(Matrix([[c1], [x+y*1j]]))
+        else:
+            self.v1.setVals(v)
+        self.v2.setVals(self.matrix * self.v1.vals)
         self.calcProjections()
         self.drawVectors()
 
     def drawVectors(self):
         self.v1.drawVector(self.unitSize)
-        self.canvas.itemconfigure(self.v2.vector, state="normal" if self.showProductVector else "hidden")
+        self.v2.setHidden(not self.showProductVector)
         self.v2.drawVector(self.unitSize)
 
-        x2, y2 = self.v1.vals.normalize(self.complexMode).vals()
-        self.ev1.drawProjections(x2, y2, self.amp1, self.unitSize) #some consistency issues with these appearing
-        self.ev2.drawProjections(x2, y2, self.amp2, self.unitSize)
-        
+        if not self.complexMode:
+          x2, y2 = self.v1.vals.normalize().vals()
+          self.ev1.drawProjections(x2, y2, self.amp1, self.unitSize) # some consistency issues with these appearing
+          self.ev2.drawProjections(x2, y2, self.amp2, self.unitSize)
+
         self.v1.setLabel()
         self.v2.setLabel()
 
@@ -191,15 +202,18 @@ class App:
             self.stepButton.grid_remove()
             self.stepBackButton.grid_remove()
 
-        if self.showProj:
+        self.projToggle.grid_remove() if self.complexMode else self.projToggle.grid()
+
+        if self.showProj and not self.complexMode:
             self.projToggle.select()
             self.canvas.itemconfigure("proj", state="normal")
         else:
             self.canvas.itemconfigure("proj", state="hidden")
             self.projToggle.deselect()
 
-        self.ev1.drawLine(self.unitSize)
-        self.ev2.drawLine(self.unitSize)
+        if not self.complexMode:
+            self.ev1.drawLine(self.unitSize)
+            self.ev2.drawLine(self.unitSize)
 
         self.ev1.drawEigenBasis(self.unitSize)
         self.ev2.drawEigenBasis(self.unitSize)
@@ -229,9 +243,8 @@ class App:
         normalized = self.v1.vals.normalize(self.complexMode)
         self.amp1 = normalized.innerProduct(self.ev1.vals)
         self.amp2 = normalized.innerProduct(self.ev2.vals)
-        self.prob1 = self.amp1**2
-        self.prob2 = self.amp2**2
-        #will be different with complex numbers
+        self.prob1 = abs(self.amp1)**2
+        self.prob2 = abs(self.amp2)**2
 
     def adjoint(self):
         self.setMatrix(self.matrix.adjoint(self.complexMode))
@@ -268,7 +281,14 @@ class App:
 
     def complexTransform(self):
         self.complexMode = not self.complexMode
-    
+
+        self.v1.setComplexMode(self.complexMode)
+        self.v2.setComplexMode(self.complexMode)
+        self.ev1.setComplexMode(self.complexMode)
+        self.ev2.setComplexMode(self.complexMode)
+
+        self.redraw()
+
     def drawGrid(self):
         color="#eee"
 
