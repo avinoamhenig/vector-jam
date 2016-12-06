@@ -9,7 +9,7 @@ class Vector:
         self.color = color
         self.vals = Matrix([[0],[0]])
         self.vWidth = vWidth
-        self.vector = self.canvas.create_line(0,0,0,0, fill=color, arrow='last', width=vWidth)
+        self.vector = self.canvas.create_line(0,0,0,0, fill=color, arrow='last', width=vWidth, capstyle=ROUND)
         self.vector2 = None
         if labelRow != None:
             self.label = Label(master, text="", fg=color, width=20)
@@ -64,8 +64,10 @@ class Vector:
         self.complexMode = complexMode
         if complexMode:
             self.vals = (1+0j) * self.vals
-            self.vector2 = self.canvas.create_line(0,0,0,0, fill=self.color, arrow='last', width=self.vWidth, dash=[10,5])
+            self.canvas.itemconfig(self.vector, arrow='none')
+            self.vector2 = self.canvas.create_line(0,0,0,0, fill=self.color, arrow='none', capstyle=ROUND, width=self.vWidth, dash=[10,5])
         else:
-            self.vals = Matrix([[c.real for c in row] for row in self.vals.rows()])
+            self.canvas.itemconfig(self.vector, arrow='last')
             self.canvas.delete(self.vector2)
             self.vector2 = None
+            self.vals = Matrix([[c.real for c in row] for row in self.vals.rows()])
