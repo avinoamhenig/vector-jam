@@ -142,21 +142,24 @@ class App:
         else:
             self.showProj = False
 
-        self.setVector(self.v1.vals)
+        self.updateVector(self.v1.vals)
         self.drawMatrix()
 
-    def setVector(self, v):
+    def updateVector(self, v):
         if self.complexMode:
             x, y = v.vals()
             c1, c2 = self.v1.vals.vals()
             d1 = sqrt(abs(x - c1.real)**2 + abs(y - c1.imag)**2)
             d2 = sqrt(abs(x - c2.real)**2 + abs(y - c2.imag)**2)
             if d1 < d2:
-              self.v1.setVals(Matrix([[x+y*1j], [c2]]))
+                self.setVector(Matrix([[x+y*1j], [c2]]))
             else:
-              self.v1.setVals(Matrix([[c1], [x+y*1j]]))
+                self.setVector(Matrix([[c1], [x+y*1j]]))
         else:
-            self.v1.setVals(v)
+            self.setVector(v)
+
+    def setVector(self, v):
+        self.v1.setVals(v)
         self.v2.setVals(self.matrix * self.v1.vals)
         self.calcProjections()
         self.drawVectors()
@@ -224,17 +227,17 @@ class App:
     def performMeasurement(self):
         random_num = random.random()
         if random_num < self.prob1:
-            self.setVector(self.ev1.vals)
+            self.updateVector(self.ev1.vals)
             self.ev1.setEvLabelBackground('yellow')
         else:
-            self.setVector(self.ev2.vals)
+            self.updateVector(self.ev2.vals)
             self.ev2.setEvLabelBackground('yellow')
 
     def step(self):
-        self.setVector(self.v2.vals)
+        self.updateVector(self.v2.vals)
 
     def stepBack(self):
-        self.setVector(self.matrix.adjoint(self.complexMode) * self.v1.vals)
+        self.updateVector(self.matrix.adjoint(self.complexMode) * self.v1.vals)
 
     def normalizeVector(self):
         self.setVector(self.v1.vals.normalize())
@@ -255,9 +258,9 @@ class App:
             [(self.cHeight/2 - y) / self.unitSize]
         ])
     def onMouseDown(self, event):
-        self.setVector(self.vectorFromCoords(event.x, event.y))
+        self.updateVector(self.vectorFromCoords(event.x, event.y))
     def onMouseMove(self, event):
-        self.setVector(self.vectorFromCoords(event.x, event.y))
+        self.updateVector(self.vectorFromCoords(event.x, event.y))
 
     def canvasResize(self, event):
         w,h = event.width - 6, event.height - 6
