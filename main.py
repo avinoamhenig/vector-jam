@@ -227,10 +227,10 @@ class App:
     def performMeasurement(self):
         random_num = random.random()
         if random_num < self.prob1:
-            self.updateVector(self.ev1.vals)
+            self.setVector(self.ev1.vals)
             self.ev1.setEvLabelBackground('yellow')
         else:
-            self.updateVector(self.ev2.vals)
+            self.setVector(self.ev2.vals)
             self.ev2.setEvLabelBackground('yellow')
 
     def step(self):
@@ -244,8 +244,8 @@ class App:
 
     def calcProjections(self):
         normalized = self.v1.vals.normalize()
-        self.amp1 = normalized.innerProduct(self.ev1.vals)
-        self.amp2 = normalized.innerProduct(self.ev2.vals)
+        self.amp1 = normalized.innerProduct(self.ev1.vals, self.complexMode)
+        self.amp2 = normalized.innerProduct(self.ev2.vals, self.complexMode)
         self.prob1 = abs(self.amp1)**2
         self.prob2 = abs(self.amp2)**2
 

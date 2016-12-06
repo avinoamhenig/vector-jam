@@ -171,5 +171,5 @@ class Matrix:
             ]
         )
 
-    def innerProduct(self, b):
-        return b.adjoint() * self
+    def innerProduct(self, b, comp = False):
+        return b.adjoint(comp) * self
