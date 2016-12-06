@@ -94,14 +94,14 @@ class Matrix:
             rowIndex += b.numRows
         return Matrix(result)
 
-    def norm(self, comp = False):
+    def norm(self):
         s = 0
         for x in self.vals():
             s += abs(x)**2
-        return (cmath if comp else math).sqrt(s)
+        return math.sqrt(s)
 
-    def normalize(self, comp = False):
-        norm = self.norm(comp)
+    def normalize(self):
+        norm = self.norm()
         return ((norm if norm == 0 else 1/norm) *
                 Matrix.identity(self.numRows)) * self
 
@@ -149,13 +149,13 @@ class Matrix:
     def eigenvector(self, ev, comp = False):
         a, b, c, d = self.vals()
         if d - ev != 0:
-            return Matrix([[1], [-c/(d-ev)]]).normalize(comp)
+            return Matrix([[1], [-c/(d-ev)]]).normalize()
         elif b != 0:
-            return Matrix([[1], [(a-ev)/-b]]).normalize(comp)
+            return Matrix([[1], [(a-ev)/-b]]).normalize()
         elif a - ev != 0:
-            return Matrix([[-b/(a-ev)], [1]]).normalize(comp)
+            return Matrix([[-b/(a-ev)], [1]]).normalize()
         elif c != 0:
-            return Matrix([[(d-ev)/-c], [1]]).normalize(comp)
+            return Matrix([[(d-ev)/-c], [1]]).normalize()
         else:
             return Matrix([[0], [0]])
 

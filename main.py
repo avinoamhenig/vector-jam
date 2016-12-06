@@ -134,8 +134,8 @@ class App:
 
         eigenvals, evs = m.eigen(self.complexMode)
         self.eigenvals = eigenvals
-        self.ev1.setVals(evs[0].normalize(self.complexMode))
-        self.ev2.setVals(evs[1].normalize(self.complexMode))
+        self.ev1.setVals(evs[0].normalize())
+        self.ev2.setVals(evs[1].normalize())
 
         if self.matrix.isHermitian(self.complexMode):
             self.showProj = True
@@ -237,10 +237,10 @@ class App:
         self.setVector(self.matrix.adjoint(self.complexMode) * self.v1.vals)
 
     def normalizeVector(self):
-        self.setVector(self.v1.vals.normalize(self.complexMode))
+        self.setVector(self.v1.vals.normalize())
 
     def calcProjections(self):
-        normalized = self.v1.vals.normalize(self.complexMode)
+        normalized = self.v1.vals.normalize()
         self.amp1 = normalized.innerProduct(self.ev1.vals)
         self.amp2 = normalized.innerProduct(self.ev2.vals)
         self.prob1 = abs(self.amp1)**2
