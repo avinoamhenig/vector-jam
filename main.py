@@ -115,8 +115,8 @@ class App:
 
         self.drawGrid()
 
-        self.ev1 = EigenStuff(self.canvasInfo, master, 8, 10, 'green yellow', 1, 'lightpink1')
-        self.ev2 = EigenStuff(self.canvasInfo, master, 9, 11, 'orange', 2, 'orchid2')
+        self.ev1 = EigenStuff(self.canvasInfo, master, 8, 10, 'green yellow', 1, 3)
+        self.ev2 = EigenStuff(self.canvasInfo, master, 9, 11, 'orange', 2, 1)
 
         self.v1 = Vector(self.canvasInfo, master, 6, 'blue', 3)
         self.v2 = Vector(self.canvasInfo, master, 7, 'red', 2)
@@ -127,6 +127,8 @@ class App:
     def setMatrix(self, m):
         self.matrix = m
 
+        if self.matrix.isComplex():
+            self.complexTransform()
         a, b, c, d = m.vals()
         for box, val in [(self.a, a), (self.b, b), (self.c, c), (self.d, d)]:
             box.delete(0, END)
@@ -285,10 +287,19 @@ class App:
     def complexTransform(self):
         self.complexMode = not self.complexMode
 
+        if self.complexMode:
+            self.complexPlaneToggle.select()
+        else:
+            self.complexPlaneToggle.deselect()
+
         self.v1.setComplexMode(self.complexMode)
         self.v2.setComplexMode(self.complexMode)
         self.ev1.setComplexMode(self.complexMode)
         self.ev2.setComplexMode(self.complexMode)
+
+        if not self.complexMode:
+            self.setMatrix(self.matrix.decomplexicize())
+            
 
         self.redraw()
 

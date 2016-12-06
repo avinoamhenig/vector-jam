@@ -6,7 +6,7 @@ import random
 
 class EigenStuff:
 
-    def __init__(self, canvas, master, evRow, probRow, color, num, basisVectorColor='magenta'):
+    def __init__(self, canvas, master, evRow, probRow, color, num, ebWidth):
         self.canvas = canvas['canvas']
         self.cDiag = canvas['diagonal']
         self.color = color
@@ -17,7 +17,7 @@ class EigenStuff:
         self.ev = self.canvas.create_line(0,0,0,0,fill=color, dash=[10,15])
         self.projEv = self.canvas.create_line(0,0,0,0, fill='cyan', arrow='last', width=1, tag='proj')
         self.projEvDash = self.canvas.create_line(0,0,0,0, fill='cyan', dash=[10,5], width=1, tag='proj')
-        self.eb = Vector(canvas, master, None, basisVectorColor, 1)
+        self.eb = Vector(canvas, master, None, color, ebWidth)
         self.num = num #for labels
         self.vals = None
 

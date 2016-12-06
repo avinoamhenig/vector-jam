@@ -173,3 +173,15 @@ class Matrix:
 
     def innerProduct(self, b, comp = False):
         return b.adjoint(comp) * self
+
+    def decomplexicize(self):
+        return Matrix([
+            [abs(z) if type(z) == complex else z for z in row]
+            for row in self.m
+        ])
+
+    def isComplex(self):
+        for z in self.vals():
+            if type(z) == complex:
+                return True
+        return False
