@@ -127,7 +127,7 @@ class App:
     def setMatrix(self, m):
         self.matrix = m
 
-        if self.matrix.isComplex():
+        if not self.complexMode and self.matrix.isComplex():
             self.complexTransform()
         a, b, c, d = m.vals()
         for box, val in [(self.a, a), (self.b, b), (self.c, c), (self.d, d)]:
