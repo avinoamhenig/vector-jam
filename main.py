@@ -81,6 +81,13 @@ class App:
             text="Complex Plane", command=self.complexTransform)
         self.complexPlaneToggle.deselect()
         self.complexPlaneToggle.grid(row=29, columnspan=3)
+
+        self.qubitModeToggle = Checkbutton(master,
+            text="Qubit Mode", command=self.toggleQubitMode)
+        self.qubitModeToggle.deselect()
+        self.qubitModeToggle.grid(row=30, columnspan=3)
+        self.qubitMode = False
+        
         self.complexMode = False
 
 
@@ -105,7 +112,7 @@ class App:
             width=10, sliderlength=20, showvalue=0, length=170,
             command = self.setScale)
         self.scaleSlider.set(self.unitSize)
-        self.scaleSlider.grid(row=30, columnspan=2)
+        self.scaleSlider.grid(row=31, columnspan=2)
 
         #Labels
         self.hermitian = Label(master, text="Hermitian")
@@ -161,6 +168,8 @@ class App:
             self.setVector(v)
 
     def setVector(self, v):
+        if self.qubitMode:
+            v = v.normalize()
         self.v1.setVals(v)
         self.v2.setVals(self.matrix * self.v1.vals)
         self.calcProjections()
@@ -283,6 +292,10 @@ class App:
     def toggleProj(self):
         self.showProj = not self.showProj
         self.drawMatrix()
+
+    def toggleQubitMode(self):
+        self.qubitMode = not self.qubitMode
+        self.normalizeVector()
 
     def complexTransform(self):
         self.complexMode = not self.complexMode
