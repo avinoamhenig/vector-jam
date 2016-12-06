@@ -44,7 +44,13 @@ class Vector:
     def setLabel(self):
         if self.complexMode:
             c1, c2 = self.vals.vals()
-            self.label['text'] = '[' + str(round(c1.real, 2)) + ' + ' + str(round(c1.imag, 2)) + 'i, ' + str(round(c2.real, 2)) + ' + ' + str(round(c2.imag, 2)) + 'i]^T'
+            self.label['text'] = '['                    \
+                + str(round(c1.real, 1))                \
+                + (' + ' if c1.imag  >= 0 else ' - ')   \
+                + str(abs(round(c1.imag, 1))) + 'i, '   \
+                + str(round(c2.real, 1))                \
+                + (' + ' if c2.imag  >= 0 else ' - ')   \
+                + str(abs(round(c2.imag, 1))) + 'i]^T'
         else:
             self.label['text'] = str([round(x, 2) for x in self.vals.vals()])+"^T"
 
