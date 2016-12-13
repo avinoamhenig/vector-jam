@@ -4,17 +4,18 @@ from math import *
 
 class Vector:
 
-    def __init__(self, canvas, master, labelRow, color, vWidth=3):
+    def __init__(self, canvas, master, labelRow, color, vWidth=3, tag=""):
         self.canvas = canvas['canvas']
         self.color = color
         self.vals = Matrix([[0],[0]])
         self.vWidth = vWidth
-        self.vector = self.canvas.create_line(0,0,0,0, fill=color, arrow='last', width=vWidth, capstyle=ROUND)
+        self.vector = self.canvas.create_line(0,0,0,0, fill=color, arrow='last', width=vWidth, capstyle=ROUND, tag=tag)
         self.vector2 = None
         if labelRow != None:
             self.label = Label(master, text="", fg=color, width=20)
             self.label.grid(row=labelRow, columnspan=2)
         self.complexMode = False
+        self.tag = tag
 
     def setVals(self, vals):
         self.vals = vals
@@ -65,7 +66,7 @@ class Vector:
         if complexMode:
             self.vals = (1+0j) * self.vals
             self.canvas.itemconfig(self.vector, arrow='none')
-            self.vector2 = self.canvas.create_line(0,0,0,0, fill=self.color, arrow='none', capstyle=ROUND, width=self.vWidth, dash=[10,5])
+            self.vector2 = self.canvas.create_line(0,0,0,0, fill=self.color, arrow='none', capstyle=ROUND, width=self.vWidth, dash=[10,5], tag=self.tag)
         else:
             self.canvas.itemconfig(self.vector, arrow='last')
             self.canvas.delete(self.vector2)

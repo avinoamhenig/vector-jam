@@ -62,20 +62,25 @@ class App:
         self.stepBackButton.grid(row=5, column=0)
         self.productVectorToggle = Checkbutton(master,
             text="Show product vector?", command=self.toggleProductVector)
-        self.productVectorToggle.select()
+        self.productVectorToggle.deselect()
         self.productVectorToggle.grid(row=18, column=0, columnspan=3)
-        self.showProductVector = True
+        self.showProductVector = False
         self.projToggle = Checkbutton(master,
             text="Show inner products?", command=self.toggleProj)
-        self.projToggle.select()
+        self.projToggle.deselect()
         self.projToggle.grid(row=19, column=0, columnspan=3)
-        self.showProj = True
+        self.showProj = False
+        self.eigenToggle = Checkbutton(master,
+            text="Show eigenbasis?", command=self.toggleEigen)
+        self.eigenToggle.deselect()
+        self.eigenToggle.grid(row=20, column=0, columnspan=3)
+        self.showEigen = False
 
         self.normalizeVectorButton = Button(master, text="Normalize Vector", command=self.normalizeVector)
-        self.normalizeVectorButton.grid(row=20, columnspan=2)
+        self.normalizeVectorButton.grid(row=21, columnspan=2)
 
         self.measureButton = Button(master, text="Measure", command=self.performMeasurement)
-        self.measureButton.grid(row=21, columnspan=2)
+        self.measureButton.grid(row=22, columnspan=2)
 
         self.complexPlaneToggle = Checkbutton(master,
             text="Complex Plane", command=self.complexTransform)
@@ -87,7 +92,7 @@ class App:
         self.qubitModeToggle.deselect()
         self.qubitModeToggle.grid(row=30, columnspan=3)
         self.qubitMode = False
-        
+
         self.complexMode = False
 
 
@@ -146,7 +151,7 @@ class App:
         self.ev1.setVals(evs[0].normalize())
         self.ev2.setVals(evs[1].normalize())
 
-        if self.matrix.isHermitian(self.complexMode):
+        if self.showProj and self.matrix.isHermitian(self.complexMode):
             self.showProj = True
         else:
             self.showProj = False
@@ -232,6 +237,11 @@ class App:
         self.ev1.drawEigenBasis(self.unitSize)
         self.ev2.drawEigenBasis(self.unitSize)
 
+        if self.showEigen:
+            self.canvas.itemconfigure("eigen", state="normal")
+        else:
+            self.canvas.itemconfigure("eigen", state="hidden")
+
         self.ev1.setEvLabel(self.eigenvals[0])
         self.ev2.setEvLabel(self.eigenvals[1])
 
@@ -293,6 +303,10 @@ class App:
         self.showProj = not self.showProj
         self.drawMatrix()
 
+    def toggleEigen(self):
+        self.showEigen = not self.showEigen
+        self.redraw()
+
     def toggleQubitMode(self):
         self.qubitMode = not self.qubitMode
         self.normalizeVector()
@@ -312,7 +326,7 @@ class App:
 
         if not self.complexMode:
             self.setMatrix(self.matrix.decomplexicize())
-            
+
 
         self.redraw()
 

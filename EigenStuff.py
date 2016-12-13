@@ -14,10 +14,10 @@ class EigenStuff:
         self.evLabel.grid(row=evRow, columnspan=2)
         self.probLabel = Label(master, text='', fg=color, width=20)
         self.probLabel.grid(row=probRow, columnspan=2)
-        self.ev = self.canvas.create_line(0,0,0,0,fill=color, dash=[10,15])
+        self.ev = self.canvas.create_line(0,0,0,0,fill=color, dash=[10,15], tag='eigen')
         self.projEv = self.canvas.create_line(0,0,0,0, fill='cyan', arrow='last', width=1, tag='proj')
         self.projEvDash = self.canvas.create_line(0,0,0,0, fill='cyan', dash=[10,5], width=1, tag='proj')
-        self.eb = Vector(canvas, master, None, color, ebWidth)
+        self.eb = Vector(canvas, master, None, color, ebWidth, 'eigen')
         self.num = num #for labels
         self.vals = None
 
