@@ -49,8 +49,10 @@ class App:
         #Buttons
         update = Button(master, text="Update", command=
             lambda: self.setMatrix(Matrix([
-                [eval(self.a.get()), eval(self.b.get())],
-                [eval(self.c.get()), eval(self.d.get())]
+                [eval(self.a.get().replace('i', 'j')),
+                 eval(self.b.get().replace('i', 'j'))],
+                [eval(self.c.get().replace('i', 'j')),
+                 eval(self.d.get().replace('i', 'j'))]
             ]))
         )
         update.grid(row=3, column=0)
@@ -144,7 +146,7 @@ class App:
         a, b, c, d = m.vals()
         for box, val in [(self.a, a), (self.b, b), (self.c, c), (self.d, d)]:
             box.delete(0, END)
-            box.insert(0, val)
+            box.insert(0, str(val).replace('j', 'i').replace('(', '').replace(')', ''))
 
         eigenvals, evs = m.eigen(self.complexMode)
         self.eigenvals = eigenvals
