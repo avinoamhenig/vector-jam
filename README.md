@@ -2,7 +2,7 @@ VectorJAM
 ==========
 
 Juliet Slade and Avinoam Henig
--------------------------------
+
 Conference project for Quantum Computing - Jim Marshall, Fall 2016
 
 SETUP INSTRUCTIONS
